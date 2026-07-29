@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://necp346b8dr5"]
+
+[ext_resource type="Script" uid="uid://bg84epswqlpmp" path="res://Scripts/Utilities/ObjectPool.cs" id="1_xatts"]
+
+[node name="MainLevel" type="Node2D" unique_id=1635673667]
+
+[node name="Obstacles" type="Node2D" parent="." unique_id=480703002]
+
+[node name="Characters" type="Node2D" parent="." unique_id=368421604]
+
+[node name="Spawners" type="Node2D" parent="." unique_id=2034855240]
+
+[node name="Entities" type="Node2D" parent="." unique_id=613662737]
+
+[node name="System" type="Node2D" parent="." unique_id=1370876422]
+
+[node name="ObjectPool" type="Node2D" parent="System" unique_id=501760911]
+script = ExtResource("1_xatts")
+metadata/_custom_type_script = "uid://bg84epswqlpmp"

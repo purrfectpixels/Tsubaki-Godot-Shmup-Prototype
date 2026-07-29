@@ -1,0 +1,34 @@
+[gd_scene format=3 uid="uid://brxby8ikdn3c6"]
+
+[ext_resource type="PackedScene" uid="uid://necp346b8dr5" path="res://Scenes/Levels/MainLevel.tscn" id="1_2ln86"]
+[ext_resource type="Texture2D" uid="uid://co6t6pxt4jaw7" path="res://icon.svg" id="2_qrb30"]
+[ext_resource type="Script" uid="uid://ckddvmvrvjijh" path="res://Scripts/Characters/PlayerCharacter.cs" id="2_s27tv"]
+[ext_resource type="Script" uid="uid://dlbv01myarg7u" path="res://Scripts/Components/Movement/PlayerMovementComponent.cs" id="3_pauaf"]
+[ext_resource type="Script" uid="uid://brqodq55auv82" path="res://Scripts/Resources/Combat/BulletData.cs" id="5_4c52t"]
+[ext_resource type="Resource" uid="uid://basy1o8hlypq1" path="res://Resources/Bullets/TestBullet.tres" id="6_beuee"]
+
+[node name="SandboxLevel" unique_id=1635673667 instance=ExtResource("1_2ln86")]
+
+[node name="PlayerCharacter" type="CharacterBody2D" parent="Characters" parent_id_path=PackedInt32Array(368421604) index="0" unique_id=1810092853 node_paths=PackedStringArray("BulletSpawnPoint")]
+position = Vector2(64, 320)
+script = ExtResource("2_s27tv")
+BulletSpawnPoint = NodePath("BarrelMarker")
+BulletData = ExtResource("6_beuee")
+ShootCooldown = 0.05
+CharacterName = "Player"
+
+[node name="PlayerMovementComponent" type="Node" parent="Characters/PlayerCharacter" index="0" unique_id=734623226]
+script = ExtResource("3_pauaf")
+FocusSpeed = 200.0
+BaseSpeed = 350.0
+metadata/_custom_type_script = "uid://dlbv01myarg7u"
+
+[node name="Sprite2D" type="Sprite2D" parent="Characters/PlayerCharacter" index="1" unique_id=1343507197]
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("2_qrb30")
+
+[node name="BarrelMarker" type="Marker2D" parent="Characters/PlayerCharacter" index="2" unique_id=868358447]
+position = Vector2(24, 0)
+
+[node name="ObjectPool" parent="System" parent_id_path=PackedInt32Array(1370876422) index="0" unique_id=501760911]
+RegisteredBulletData = Array[ExtResource("5_4c52t")]([ExtResource("6_beuee")])

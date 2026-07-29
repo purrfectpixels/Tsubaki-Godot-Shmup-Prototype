@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://bs4deakdi8stc"]
+
+[node name="BaseExplorationLevel" type="Node2D" unique_id=1801612246]
+
+[node name="LevelGrid" type="Node2D" parent="." unique_id=1728741757]
+
+[node name="EntitySpawners" type="Node2D" parent="." unique_id=1690642958]
+
+[node name="LootSpawners" type="Node2D" parent="." unique_id=1869498664]
+
+[node name="Triggers" type="Node2D" parent="." unique_id=1528729009]

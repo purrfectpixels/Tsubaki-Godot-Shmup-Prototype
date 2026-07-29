@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://bk7krk56ehs4v"]
+
+[ext_resource type="Script" uid="uid://d0cj4x01om50x" path="res://Scripts/Core/MainGame.cs" id="1_8etcy"]
+[ext_resource type="PackedScene" uid="uid://brxby8ikdn3c6" path="res://Scenes/Levels/SandboxLevel.tscn" id="2_frf35"]
+[ext_resource type="Script" uid="uid://ddwemg3rs0a0j" path="res://Scripts/UI/FpsLabel.cs" id="3_yprpe"]
+
+[node name="MainGame" type="Node2D" unique_id=1239374070]
+script = ExtResource("1_8etcy")
+
+[node name="GameSystem" type="Node" parent="." unique_id=712390154]
+
+[node name="LevelContainer" type="Node2D" parent="." unique_id=897594932]
+
+[node name="SandboxLevel" parent="LevelContainer" unique_id=1635673667 instance=ExtResource("2_frf35")]
+
+[node name="MainAudio" type="AudioStreamPlayer" parent="." unique_id=280062142]
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=70323385]
+
+[node name="FPSLabel" type="Label" parent="UI" unique_id=902006482]
+offset_right = 40.0
+offset_bottom = 23.0
+text = "FPS: "
+script = ExtResource("3_yprpe")
