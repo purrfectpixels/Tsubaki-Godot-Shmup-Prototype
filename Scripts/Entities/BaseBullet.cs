@@ -4,6 +4,7 @@ using System;
 [GlobalClass]
 public partial class BaseBullet : Node2D
 {
+	private int _outOfBoundsMargin = 50;
 	private BulletData _bulletData;
 	private bool _isActive = false;
 	private Vector2 _screenSize;
@@ -44,26 +45,26 @@ public partial class BaseBullet : Node2D
 	{
 		if(_bulletData != null)
 		{
-			Position = new Vector2(Position.X + _bulletData.BaseSpeed * (float)delta, Position.Y);
+			Vector2 direction = Vector2.FromAngle(Rotation);
+			Position += direction * _bulletData.BaseSpeed * (float)delta;
 		}
 	}
 
 	private bool CheckOOB()
 	{
-		if(Position.X < 0 || Position.X > _screenSize.X || Position.Y < 0 || Position.Y > _screenSize.Y)
+		if(Position.X < -_outOfBoundsMargin || Position.X > _screenSize.X + _outOfBoundsMargin || Position.Y < -_outOfBoundsMargin || Position.Y > _screenSize.Y + _outOfBoundsMargin)
 		{
 			return true;
 		}
 		return false;
 	}
 
-    public override void _PhysicsProcess(double delta)
-    {
-        Move(delta);
+	public void ManualUpdate(double delta)
+	{
+		Move(delta);
 		if(CheckOOB())
 		{
 			Recycle();
 		}
-    }
-
+	}
 }

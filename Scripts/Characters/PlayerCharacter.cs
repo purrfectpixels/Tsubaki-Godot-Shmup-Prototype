@@ -14,12 +14,26 @@ public partial class PlayerCharacter : BaseCharacter
         base._Ready();
     }
 
+    public void StressShoot(int bulletCount)
+    {
+        float angleStep = 360f / bulletCount;
+        for (int i = 0; i < bulletCount; i++)
+        {
+            float angleRad = Mathf.DegToRad(i * angleStep);
+            Vector2 direction = Vector2.Right.Rotated(angleRad);
+
+            ObjectPool.Instance.SpawnBullet<BaseBullet>(BulletData, BulletSpawnPoint.GlobalPosition, direction);
+        }
+    }
+
     public void Shoot()
     {
         if (BulletSpawnPoint != null)
         {
             // Implementation for shooting
+            ObjectPool.Instance.SpawnBullet<BaseBullet>(BulletData, BulletSpawnPoint.GlobalPosition, new Vector2(0.5f, -0.5f)); // Example direction, adjust as needed
             ObjectPool.Instance.SpawnBullet<BaseBullet>(BulletData, BulletSpawnPoint.GlobalPosition, Vector2.Right);
+            ObjectPool.Instance.SpawnBullet<BaseBullet>(BulletData, BulletSpawnPoint.GlobalPosition, new Vector2(0.5f, 0.5f));
         }
     }
 
@@ -32,7 +46,7 @@ public partial class PlayerCharacter : BaseCharacter
         }
         if(_timeSinceLastShot >= ShootCooldown && Input.IsActionPressed("shoot"))
         {
-            Shoot();
+            StressShoot(50); // Example: Shoot 3 bullets in a spread pattern
             _timeSinceLastShot = 0f;
         }
     }

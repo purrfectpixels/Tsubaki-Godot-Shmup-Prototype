@@ -1,0 +1,239 @@
+[gd_scene format=3 uid="uid://brxby8ikdn3c6"]
+
+[ext_resource type="PackedScene" uid="uid://necp346b8dr5" path="res://Scenes/Levels/MainLevel.tscn" id="1_2ln86"]
+[ext_resource type="Texture2D" uid="uid://co6t6pxt4jaw7" path="res://icon.svg" id="2_qrb30"]
+[ext_resource type="Script" uid="uid://ckddvmvrvjijh" path="res://Scripts/Characters/PlayerCharacter.cs" id="2_s27tv"]
+[ext_resource type="Script" uid="uid://dlbv01myarg7u" path="res://Scripts/Components/Movement/PlayerMovementComponent.cs" id="3_pauaf"]
+[ext_resource type="Script" uid="uid://brqodq55auv82" path="res://Scripts/Resources/Combat/BulletData.cs" id="5_4c52t"]
+[ext_resource type="Resource" uid="uid://basy1o8hlypq1" path="res://Resources/Bullets/TestBullet.tres" id="6_beuee"]
+
+[sub_resource type="GDScript" id="GDScript_beuee"]
+script/source = "@tool
+extends Node2D
+
+
+var auto_pattern_id:String = \"\"
+var auto_start_on_cam:bool = true
+var auto_start_after_time:float = 0.0
+var auto_start_at_distance:float = 5
+var auto_distance_from:NodePath
+var trigger_container:NodePath
+
+var trig_container:TriggerContainer
+var trigger_counter = 0
+var trig_iter:Dictionary
+var trigger_timeout:bool = false
+var trigger_time:float = 0
+var trig_collider
+var trig_signal
+
+var rotating_speed = 0.0
+var active:bool = true
+var shared_area_name = \"0\"
+var shared_area
+var pool_amount:int = 50
+
+var r_randomisation_chances:float
+var r_active_chances:float
+var r_shared_area_choice:String
+var r_rotating_variation:Vector3
+var r_pattern_choice:String
+var r_start_time_choice:String
+var r_start_time_variation:Vector3
+
+var auto_call:bool = false
+var can_respawn:bool = true
+
+func _ready():
+	if Engine.is_editor_hint(): return
+	
+	if shared_area_name != \"\":
+		shared_area = Spawning.get_shared_area(shared_area_name)
+	else: push_error(\"Spawnpoint doesn't have any shared_area\")
+		
+	if auto_start_on_cam:
+		assert(auto_pattern_id != \"\")
+		var instance = VisibleOnScreenNotifier2D.new()
+		instance.connect(\"screen_entered\",Callable(self,\"on_screen\").bind(true))
+		instance.connect(\"screen_exited\",Callable(self,\"on_screen\").bind(false))
+	elif auto_distance_from != NodePath(): set_physics_process(true)
+	elif auto_pattern_id != \"\":
+		if auto_start_after_time > float(0.0):
+			await get_tree().create_timer(auto_start_after_time).timeout
+		auto_call = true
+		set_physics_process(active)
+		
+	if active and auto_pattern_id != \"\":
+		if auto_start_after_time > float(0.0):
+			await get_tree().create_timer(auto_start_after_time).timeout
+		auto_call = true
+		set_physics_process(active)
+		
+	if rotating_speed > 0: set_physics_process(active)
+		
+	if active and pool_amount > 0:
+		call_deferred(\"set_pool\")
+		
+	if trigger_container:
+		trig_container = get_node(trigger_container)
+#		set_physics_process(false)
+
+func set_pool():
+	var props = Spawning.pattern(auto_pattern_id)[\"bullet\"]
+	Spawning.create_pool(props, shared_area_name, pool_amount, !Spawning.bullet(props).has(\"anim_idle\"))
+
+var _delta:float
+func _physics_process(delta):
+	if Engine.is_editor_hint(): return
+	_delta = delta
+	rotate(rotating_speed)
+	if trig_container:
+		checkTrigger()
+		return
+	
+	if auto_distance_from != NodePath() and global_position.distance_to(get_node(auto_distance_from).global_position) <= auto_start_at_distance:
+		active = true
+	
+	if can_respawn and auto_call and active and auto_pattern_id != \"\":
+		call_deferred(\"callAction\")
+		can_respawn = false
+		if not rotating_speed > 0: set_physics_process(false)
+		
+
+func on_screen(is_on):
+	if is_on and auto_start_after_time > float(0.0):
+		await get_tree().create_timer(auto_start_after_time).timeout
+	active = is_on
+	set_physics_process(active)
+
+func triggerSignal(sig):
+	trig_signal = sig
+	checkTrigger()
+
+func trig_timeout(time:float=0):
+	trigger_time += _delta
+	if trigger_time >= time:
+		trigger_timeout = true
+		trigger_time = 0
+		return true
+	return false
+#	checkTrigger()
+
+func checkTrigger():
+	if not (active and auto_pattern_id != \"\" and trig_container): return
+	trig_container.checkTriggers(self, self)
+#		Spawning.spawn(self, auto_pattern_id, shared_area_name)
+
+func callAction():
+	Spawning.spawn(self, auto_pattern_id, shared_area_name)
+
+func _get_property_list() -> Array:
+	return [
+		{
+			name = \"active\",
+			type = TYPE_BOOL,
+			usage = PROPERTY_USAGE_DEFAULT
+		},{
+			name = \"auto_pattern_id\",
+			type = TYPE_STRING,
+			usage = PROPERTY_USAGE_DEFAULT
+		},{
+			name = \"shared_area_name\",
+			type = TYPE_STRING,
+			usage = PROPERTY_USAGE_DEFAULT
+		},{
+			name = \"rotating_speed\",
+			type = TYPE_FLOAT,
+			usage = PROPERTY_USAGE_DEFAULT
+		},{
+			name = \"pool_amount\",
+			type = TYPE_INT,
+			usage = PROPERTY_USAGE_DEFAULT
+		},{
+			name = \"Autostart & Triggering\",
+			type = TYPE_NIL,
+			hint_string = \"auto_\",
+			usage = PROPERTY_USAGE_GROUP
+		},{
+			name = \"auto_start_on_cam\",
+			type = TYPE_BOOL,
+			usage = PROPERTY_USAGE_DEFAULT
+		},{
+			name = \"auto_start_after_time\",
+			type = TYPE_FLOAT,
+			usage = PROPERTY_USAGE_DEFAULT
+		},{
+			name = \"auto_start_at_distance\",
+			type = TYPE_FLOAT,
+			usage = PROPERTY_USAGE_DEFAULT
+		},{
+			name = \"auto_distance_from\",
+			type = TYPE_NODE_PATH,
+			usage = PROPERTY_USAGE_DEFAULT
+		},{
+			name = \"Advanced Triggering\",
+			type = TYPE_NIL,
+			hint_string = \"trigger_\",
+			usage = PROPERTY_USAGE_GROUP
+		},{
+			name = \"trigger_container\",
+			type = TYPE_NODE_PATH,
+			usage = PROPERTY_USAGE_DEFAULT
+		}
+#		,{
+#			name = \"Random\",
+#			type = TYPE_NIL,
+#			hint_string = \"r_\",
+#			usage = PROPERTY_USAGE_GROUP
+#		},
+#		{ name = \"r_randomisation_chances\", type = TYPE_FLOAT,
+#			hint = PROPERTY_HINT_RANGE, hint_string = \"0, 1\", usage = PROPERTY_USAGE_DEFAULT },
+#		{ name = \"r_active_chances\", type = TYPE_FLOAT,
+#			hint = PROPERTY_HINT_RANGE, hint_string = \"0, 1\", usage = PROPERTY_USAGE_DEFAULT },
+#		{ name = \"r_shared_area_choice\", type = TYPE_STRING, usage = PROPERTY_USAGE_DEFAULT },
+#		{ name = \"r_rotating_variation\", type = TYPE_VECTOR3, usage = PROPERTY_USAGE_DEFAULT },
+#		{ name = \"r_pattern_choice\", type = TYPE_ARRAY, usage = PROPERTY_USAGE_DEFAULT },
+#		{ name = \"r_start_time_choice\", type = TYPE_STRING, usage = PROPERTY_USAGE_DEFAULT },
+#		{ name = \"r_start_time_variation\", type = TYPE_VECTOR3, usage = PROPERTY_USAGE_DEFAULT }
+	]
+"
+
+[node name="SandboxLevel" unique_id=1635673667 instance=ExtResource("1_2ln86")]
+
+[node name="PlayerCharacter" type="CharacterBody2D" parent="Characters" parent_id_path=PackedInt32Array(368421604) index="0" unique_id=1810092853 node_paths=PackedStringArray("BulletSpawnPoint")]
+position = Vector2(64, 320)
+script = ExtResource("2_s27tv")
+BulletSpawnPoint = NodePath("BarrelMarker")
+BulletData = ExtResource("6_beuee")
+ShootCooldown = 0.05
+CharacterName = "Player"
+
+[node name="PlayerMovementComponent" type="Node" parent="Characters/PlayerCharacter" index="0" unique_id=734623226]
+script = ExtResource("3_pauaf")
+FocusSpeed = 200.0
+BaseSpeed = 350.0
+metadata/_custom_type_script = "uid://dlbv01myarg7u"
+
+[node name="Sprite2D" type="Sprite2D" parent="Characters/PlayerCharacter" index="1" unique_id=1343507197]
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("2_qrb30")
+
+[node name="BarrelMarker" type="Marker2D" parent="Characters/PlayerCharacter" index="2" unique_id=868358447]
+position = Vector2(24, 0)
+
+[node name="SpawnPoint" type="Node2D" parent="Spawners" parent_id_path=PackedInt32Array(2034855240) index="0" unique_id=714475673]
+script = SubResource("GDScript_beuee")
+active = true
+auto_pattern_id = ""
+shared_area_name = "0"
+rotating_speed = 0.0
+pool_amount = 1500
+auto_start_on_cam = true
+auto_start_after_time = 0.0
+auto_start_at_distance = 5.0
+auto_distance_from = NodePath("../../Characters/PlayerCharacter")
+trigger_container = NodePath("")
+metadata/_custom_type_script = "uid://ba2eoqwrk08ax"
+
+[node name="ObjectPool" parent="System" parent_id_path=PackedInt32Array(1370876422) index="0" unique_id=501760911]
+RegisteredBulletData = Array[ExtResource("5_4c52t")]([ExtResource("6_beuee")])

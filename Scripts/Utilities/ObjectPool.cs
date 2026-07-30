@@ -1,19 +1,22 @@
 using System.Linq;
 using Godot;
-using Godot.Collections;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 [GlobalClass]
 public partial class ObjectPool : Node2D
 {
 	public static ObjectPool Instance { get; private set; }
-	private Array<BulletData> _registeredBulletData = new Array<BulletData>();
-	[Export] public Array<BulletData> RegisteredBulletData
+	private Godot.Collections.Array<BulletData> _registeredBulletData = new Godot.Collections.Array<BulletData>();
+	[Export] public Godot.Collections.Array<BulletData> RegisteredBulletData
 	{
 		get => _registeredBulletData;
 		set => _registeredBulletData = value;
 	}
-	private Dictionary<string, Array<BaseBullet>> _bulletPools = new Dictionary<string, Array<BaseBullet>>();
+	private Dictionary<string, Stack<BaseBullet>> _bulletPools = new Dictionary<string, Stack<BaseBullet>>();
 	private Dictionary<string, PackedScene> _bulletScenes = new Dictionary<string, PackedScene>();
+	private List<BaseBullet> _activeBullets = new List<BaseBullet>();
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -26,8 +29,8 @@ public partial class ObjectPool : Node2D
 	{
 		foreach (var bulletData in _registeredBulletData)
 		{
-			var bulletArray = new Array<BaseBullet>();
-			_bulletPools[bulletData.BulletName] = bulletArray;
+			var bulletStack = new Stack<BaseBullet>();
+			_bulletPools[bulletData.BulletName] = bulletStack;
 			_bulletScenes[bulletData.BulletName] = bulletData.BulletScene;
 
 			for (int i = 0; i < bulletData.InitialPoolSize; i++)
@@ -35,7 +38,7 @@ public partial class ObjectPool : Node2D
 				var bulletInstance = bulletData.BulletScene.Instantiate<BaseBullet>();
 				bulletInstance.Reset();
 				AddChild(bulletInstance);
-				bulletArray.Add(bulletInstance);
+				bulletStack.Push(bulletInstance);
 			}
 		}
 	}
@@ -45,12 +48,11 @@ public partial class ObjectPool : Node2D
 		if(!_bulletPools.ContainsKey(bulletData.BulletName))
 			return null;
 		
-		Array<BaseBullet> array = _bulletPools[bulletData.BulletName];
+		Stack<BaseBullet> bulletStack = _bulletPools[bulletData.BulletName];
 		BaseBullet bullet;
-		if(array.Count() > 0)
+		if(bulletStack.Count > 0)
 		{
-			bullet = array.First();
-			array.RemoveAt(0);
+			bullet = bulletStack.Pop();
 		}
 		else
 		{
@@ -61,6 +63,7 @@ public partial class ObjectPool : Node2D
 			AddChild(bullet);
 		}
 		bullet.Initialize(bulletData, position, direction);
+		_activeBullets.Add(bullet);
 		GD.Print("Spawned bullet: ", bulletData.BulletName, " at position: ", position);
 
 		return bullet as T;
@@ -71,8 +74,19 @@ public partial class ObjectPool : Node2D
 		bullet.Reset();
 		if(_bulletPools.ContainsKey(bulletName))
 		{
-			_bulletPools[bulletName].Add(bullet);
+			_activeBullets.Remove(bullet);
+			_bulletPools[bulletName].Push(bullet);
 			GD.Print("Returned bullet: ", bulletName, " to pool. Pool size: ", _bulletPools[bulletName].Count());
 		}
 	}
+
+    public override void _PhysicsProcess(double delta)
+    {
+        float dt = (float)delta;
+		for(int i = _activeBullets.Count - 1; i >= 0; i--)
+		{
+			_activeBullets[i].ManualUpdate(dt);
+		}
+    }
+
 }
