@@ -8,5 +8,4 @@ script = ExtResource("1_jm1uo")
 BulletName = "Test Bullet"
 BulletScene = ExtResource("1_hxlow")
 InitialPoolSize = 3000
-BaseSpeed = 250.0
 metadata/_custom_type_script = "uid://brqodq55auv82"

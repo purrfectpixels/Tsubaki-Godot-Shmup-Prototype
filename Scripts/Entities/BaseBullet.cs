@@ -1,6 +1,7 @@
 using Godot;
 using System;
 
+// Warning: DO NOT USE THIS FOR SMALL NUMEROUS BULLETS. THE PERFORMANCE PENALTY IS TOO HIGH. USE BULLETMESH INSTEAD.
 [GlobalClass]
 public partial class BaseBullet : Node2D
 {

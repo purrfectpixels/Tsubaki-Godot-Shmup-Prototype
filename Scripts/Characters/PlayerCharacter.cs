@@ -3,6 +3,10 @@ using System;
 
 public partial class PlayerCharacter : BaseCharacter
 {
+    [ExportGroup("Hurtbox Settings")]
+    [Export] public Marker2D HurtboxOrigin { get; set; }
+    [Export] public float HurtboxRadius { get; set; } = 4f;
+    [ExportGroup("Combat Settings")]
     [Export] public Marker2D BulletSpawnPoint { get; set; }
     [ExportGroup("COMBAT TESTING REMOVE LATER")]
     [Export] public BulletData BulletData { get; set; } // FOR TESTING PURPOSES, REMOVE LATER
@@ -12,6 +16,15 @@ public partial class PlayerCharacter : BaseCharacter
     public override void _Ready()
     {
         base._Ready();
+        // Register the player character with the PlayerService
+        PlayerService.Instance.RegisterPlayer(this);
+    }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+        // Unregister the player character when it exits the scene tree
+        PlayerService.Instance.UnregisterPlayer();
     }
 
     public void StressShoot(int bulletCount)
@@ -46,7 +59,8 @@ public partial class PlayerCharacter : BaseCharacter
         }
         if(_timeSinceLastShot >= ShootCooldown && Input.IsActionPressed("shoot"))
         {
-            StressShoot(50); // Example: Shoot 3 bullets in a spread pattern
+            //StressShoot(50); // Example: Shoot 3 bullets in a spread pattern
+            Shoot();
             _timeSinceLastShot = 0f;
         }
     }

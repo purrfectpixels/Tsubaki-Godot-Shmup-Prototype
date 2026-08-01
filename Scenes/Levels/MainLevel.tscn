@@ -1,6 +1,9 @@
 [gd_scene format=3 uid="uid://necp346b8dr5"]
 
 [ext_resource type="Script" uid="uid://bg84epswqlpmp" path="res://Scripts/Utilities/ObjectPool.cs" id="1_xatts"]
+[ext_resource type="Script" uid="uid://cc36h1hluxycj" path="res://Scripts/Utilities/BulletsManager.cs" id="2_rfwi5"]
+[ext_resource type="Script" uid="uid://b26mhp0yko43n" path="res://Scripts/Utilities/BulletMesh.cs" id="3_jxtak"]
+[ext_resource type="Texture2D" uid="uid://ctu45l63jb2g0" path="res://Assets/Bullets/StandardPellet.png" id="4_xx3f3"]
 
 [node name="MainLevel" type="Node2D" unique_id=1635673667]
 
@@ -17,3 +20,14 @@
 [node name="ObjectPool" type="Node2D" parent="System" unique_id=501760911]
 script = ExtResource("1_xatts")
 metadata/_custom_type_script = "uid://bg84epswqlpmp"
+
+[node name="BulletsManager" type="Node2D" parent="System" unique_id=27302623]
+script = ExtResource("2_rfwi5")
+
+[node name="TestBullet" type="MultiMeshInstance2D" parent="System/BulletsManager" unique_id=114860837]
+texture_filter = 1
+script = ExtResource("3_jxtak")
+Id = "TestBullet"
+BulletTexture = ExtResource("4_xx3f3")
+BulletRadius = 4.0
+metadata/_custom_type_script = "uid://b26mhp0yko43n"

@@ -7,7 +7,7 @@ public partial class BaseCharacter : CharacterBody2D , IHurtable
 	[ExportGroup("Components")]
 	[Export] public HealthComponent HealthComponent { get; private set; }
 	[Export] public MovementComponent MovementComponent { get; private set; }
-	[Export] public Node CharacterVisualComponent { get; private set; }
+	[Export] public CharacterVisualComponent CharacterVisualComponent { get; private set; }
 	[ExportGroup("Identity")]
 	[Export] public string CharacterName { get; private set; } = "Unnamed";
 	
@@ -24,7 +24,17 @@ public partial class BaseCharacter : CharacterBody2D , IHurtable
 		if(HealthComponent != null)
 		{
 			HealthComponent.HealthChanged += OnHealthChanged;
+			HealthComponent.Hurt += OnHurt;
 		}
+	}
+
+	public bool IsCurrentlyImmune()
+	{
+		if (HealthComponent != null)
+		{
+			return HealthComponent.IsImmune();
+		}
+		return false;
 	}
 
 	public void TakeDamage(float damage)
@@ -34,6 +44,15 @@ public partial class BaseCharacter : CharacterBody2D , IHurtable
 			HealthComponent.TakeDamage(damage);
 		}
 	}
+
+	public void OnHurt(float damage)
+    {
+        GD.Print("I am hurt! I lost ", damage);
+        if(CharacterVisualComponent != null)
+        {
+            CharacterVisualComponent.HitFlashRepeatedly();
+        }
+    }
 
 	public void OnHealthChanged(float health, float maxHP)
 	{

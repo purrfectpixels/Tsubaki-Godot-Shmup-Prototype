@@ -4,18 +4,19 @@ using System;
 [GlobalClass]
 public partial class HealthComponent : Node
 {
+	[Signal] public delegate void HurtEventHandler(float damage);
 	[Signal] public delegate void HealthChangedEventHandler(float newHealth, float maxHealth);
 	[Signal] public delegate void DiedEventHandler();
 
 	public bool IsDead { get; private set; }
 
-	private float _health = 100.0f;
-	private float _maxHP = 100.0f;
+	private float _health = 8.0f;
+	private float _maxHP = 8.0f;
 
 	private float _hitGraceTimer;
 
 	[ExportGroup("Health data")]
-	public float Health { get; private set; }
+	[Export] public float Health { get; private set; }
 	[Export] public float MaxHealth 
 	{
 		get => _maxHP;
@@ -27,6 +28,11 @@ public partial class HealthComponent : Node
 	public override void _Ready()
 	{
 		Health = MaxHealth;
+	}
+
+	public bool IsImmune()
+	{
+		return _hitGraceTimer > 0f;
 	}
 
 	public void TakeDamage(float damage)
@@ -42,7 +48,10 @@ public partial class HealthComponent : Node
 		if(Health <= 0.0f)
 		{
 			Die();
+			return;
 		}
+		EmitSignal(SignalName.Hurt, damage);
+		EmitSignal(SignalName.HealthChanged, Health, _maxHP);
 	}
 
 	public void Die()
