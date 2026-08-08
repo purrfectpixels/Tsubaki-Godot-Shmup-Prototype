@@ -5,6 +5,7 @@ using System;
 [GlobalClass]
 public partial class BaseBullet : Node2D
 {
+	[Export] public HitboxComponent Hitbox { get; set; }
 	private int _outOfBoundsMargin = 50;
 	private BulletData _bulletData;
 	private bool _isActive = false;
@@ -13,14 +14,26 @@ public partial class BaseBullet : Node2D
     public override void _Ready()
     {
 		_screenSize = GetViewportRect().Size;
+		if (Hitbox != null)
+		{
+			Hitbox.HitboxEntered += OnHitboxEntered;
+		}
+		else
+		{
+			GD.PrintErr("HitboxComponent is not assigned for bullet: ", Name);
+		}
     }
 
-	public void Initialize(BulletData bulletData, Vector2 position, Vector2 direction)
+	public void Initialize(BulletData bulletData, Vector2 position, Vector2 direction, Team team)
 	{
 		_bulletData = bulletData;
 		Position = position;
 		Rotation = direction.Angle();
 		Visible = true;
+		if (Hitbox != null)
+		{
+			Hitbox.SetTeam(team);
+		}
 		SetProcess(true);
 		SetPhysicsProcess(true);
 		_isActive = true;
@@ -32,13 +45,23 @@ public partial class BaseBullet : Node2D
 		SetProcess(false);
 		SetPhysicsProcess(false);
 		_isActive = false;
+		Position = Vector2.Zero;
+		Rotation = 0f;
 	}
 
 	public virtual void Recycle()
 	{
+		if (!_isActive)
+		{
+			return;
+		}
 		if(_bulletData != null)
 		{
 			ObjectPool.Instance.ReturnBullet(this, _bulletData.BulletName);
+			if (Hitbox != null)
+			{
+				Hitbox.Deactivate();
+			}
 		}
 	}
 
@@ -67,5 +90,10 @@ public partial class BaseBullet : Node2D
 		{
 			Recycle();
 		}
+	}
+	
+	private void OnHitboxEntered()
+	{
+		Recycle();
 	}
 }

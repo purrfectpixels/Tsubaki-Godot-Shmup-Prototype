@@ -43,7 +43,7 @@ public partial class ObjectPool : Node2D
 		}
 	}
 
-	public T SpawnBullet<T>(BulletData bulletData, Vector2 position, Vector2 direction) where T : BaseBullet
+	public T SpawnBullet<T>(BulletData bulletData, Vector2 position, Vector2 direction, Team team = Team.Player) where T : BaseBullet
 	{
 		if(!_bulletPools.ContainsKey(bulletData.BulletName))
 			return null;
@@ -62,9 +62,8 @@ public partial class ObjectPool : Node2D
 		{
 			AddChild(bullet);
 		}
-		bullet.Initialize(bulletData, position, direction);
+		bullet.Initialize(bulletData, position, direction, team);
 		_activeBullets.Add(bullet);
-		GD.Print("Spawned bullet: ", bulletData.BulletName, " at position: ", position);
 
 		return bullet as T;
 	}
@@ -76,7 +75,6 @@ public partial class ObjectPool : Node2D
 		{
 			_activeBullets.Remove(bullet);
 			_bulletPools[bulletName].Push(bullet);
-			GD.Print("Returned bullet: ", bulletName, " to pool. Pool size: ", _bulletPools[bulletName].Count());
 		}
 	}
 

@@ -10,9 +10,10 @@ public partial class CharacterVisualComponent : Node
     public override void _Ready()
     {
         var character = GetParent<BaseCharacter>();
-		if(character != null && character is BaseCharacter)
+		if(character != null && character is BaseCharacter && character.CharacterSprite != null)
 		{
-			var mat = character.Material;
+			
+			var mat = character.CharacterSprite.Material;
 			if(mat is ShaderMaterial shaderMaterial)
 			{
 				_shaderMaterial = shaderMaterial;
@@ -20,6 +21,20 @@ public partial class CharacterVisualComponent : Node
 		}
     }
 
+	public void HitFlash()
+	{
+		if (_shaderMaterial == null) return;
+
+		// Kill any existing tween so rapid hits restart the flash cleanly
+		_flashTween?.Kill();
+
+		// Snap to full flash instantly
+		_shaderMaterial.SetShaderParameter("flash_modifier", 1.0f);
+
+		// Interpolate back to normal color over flashDuration
+		_flashTween = CreateTween();
+		_flashTween.TweenProperty(_shaderMaterial, "shader_parameter/flash_modifier", 0.0f, _flashDuration);
+	}
 
 	public void HitFlashRepeatedly()
 	{

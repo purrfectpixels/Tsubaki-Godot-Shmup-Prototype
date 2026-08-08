@@ -8,10 +8,10 @@ public partial class TestEmitter : Marker2D
     [Export] public string BulletMeshId { get; set; } = "Pellet"; // Match this with your BulletMesh Id
 
     [ExportGroup("Pattern Settings")]
-    [Export] public int Arms { get; set; } = 8;                  // Number of spiral arms
-    [Export] public float BulletSpeed { get; set; } = 250f;      // Speed of each bullet
+    [Export] public int Arms { get; set; } = 3;                  // Number of spiral arms
+    [Export] public float BulletSpeed { get; set; } = 350f;      // Speed of each bullet
     [Export] public float FireRate { get; set; } = 0.02f;        // Seconds between bursts
-    [Export] public float RotationSpeed { get; set; } = 2.5f;    // Angular velocity (radians/sec)
+    [Export] public float RotationSpeed { get; set; } = 1.5f;    // Angular velocity (radians/sec)
     [Export] public float AngleStepPerBurst { get; set; } = 0.1f; // Shift angle slightly each shot
 
     [Export] public BulletsManager BulletsManager { get; set;}

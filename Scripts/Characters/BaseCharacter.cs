@@ -10,6 +10,7 @@ public partial class BaseCharacter : CharacterBody2D , IHurtable
 	[Export] public CharacterVisualComponent CharacterVisualComponent { get; private set; }
 	[ExportGroup("Identity")]
 	[Export] public string CharacterName { get; private set; } = "Unnamed";
+	[Export] public Sprite2D CharacterSprite { get; private set; }
 	
 	public bool IsDead => IsInstanceValid(HealthComponent) && HealthComponent.IsDead;
 
@@ -42,6 +43,10 @@ public partial class BaseCharacter : CharacterBody2D , IHurtable
 		if(HealthComponent != null)
 		{
 			HealthComponent.TakeDamage(damage);
+		}
+		else
+		{
+			GD.PrintErr("HealthComponent is null for character: ", CharacterName);
 		}
 	}
 
