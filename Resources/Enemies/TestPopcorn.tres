@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="EnemyData" format=3 uid="uid://c7ucm8dlrf5py"]
+
+[ext_resource type="Script" uid="uid://c81f1yamy730i" path="res://Scripts/Resources/Characters/EnemyData.cs" id="1_4086w"]
+[ext_resource type="PackedScene" uid="uid://bucfkld7cxcf4" path="res://Scenes/Characters/TestPopcorn.tscn" id="1_eyych"]
+
+[resource]
+script = ExtResource("1_4086w")
+EnemyId = "TestPopcorn"
+EnemyScene = ExtResource("1_eyych")
+metadata/_custom_type_script = "uid://c81f1yamy730i"

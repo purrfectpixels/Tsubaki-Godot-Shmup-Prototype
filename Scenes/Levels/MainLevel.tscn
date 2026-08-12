@@ -11,25 +11,25 @@
 
 [sub_resource type="Curve2D" id="Curve2D_xx3f3"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 1600, 120, 0, 0, 0, 0, 1088, 120, 0, 0, 0, 0, 816, 320, 0, 0, 0, 0, 800, 648, 0, 0, 0, 0, 120, 640, 0, 0, 0, 0, 120, 64, 0, 0, 0, 0, -320, 64)
+"points": PackedVector2Array(0, 0, 0, 0, 1600, 120, 0, 0, 0, 0, 1088, 120, 0, 0, 0, 0, 816, 320, 0, 0, 0, 0, 728, 608, 0, 0, 0, 0, 240, 608, 0, 0, 0, 0, 32, 64, 0, 0, 0, 0, -320, 64)
 }
 point_count = 7
 
 [sub_resource type="Curve2D" id="Curve2D_rqyoi"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, -320, 120, 0, 0, 0, 0, 192, 120, 0, 0, 0, 0, 464, 320, 0, 0, 0, 0, 480, 648, 0, 0, 0, 0, 1160, 640, 0, 0, 0, 0, 1160, 64, 0, 0, 0, 0, 1600, 64)
+"points": PackedVector2Array(0, 0, 0, 0, -320, 120, 0, 0, 0, 0, 192, 120, 0, 0, 0, 0, 464, 320, 0, 0, 0, 0, 568, 608, 0, 0, 0, 0, 1064, 608, 0, 0, 0, 0, 1240, 64, 0, 0, 0, 0, 1600, 64)
 }
 point_count = 7
 
 [sub_resource type="Curve2D" id="Curve2D_sx5r3"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, -320, 600, 0, 0, 0, 0, 192, 600, 0, 0, 0, 0, 464, 400, 0, 0, 0, 0, 480, 72, 0, 0, 0, 0, 1160, 80, 0, 0, 0, 0, 1160, 656, 0, 0, 0, 0, 1600, 656)
+"points": PackedVector2Array(0, 0, 0, 0, -320, 600, 0, 0, 0, 0, 192, 600, 0, 0, 0, 0, 464, 400, 0, 0, 0, 0, 552, 160, 0, 0, 0, 0, 1024, 168, 0, 0, 0, 0, 1240, 656, 0, 0, 0, 0, 1600, 656)
 }
 point_count = 7
 
 [sub_resource type="Curve2D" id="Curve2D_kmvrn"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 1600, 600, 0, 0, 0, 0, 1088, 600, 0, 0, 0, 0, 816, 400, 0, 0, 0, 0, 800, 72, 0, 0, 0, 0, 120, 80, 0, 0, 0, 0, 120, 656, 0, 0, 0, 0, -320, 656)
+"points": PackedVector2Array(0, 0, 0, 0, 1600, 600, 0, 0, 0, 0, 1088, 600, 0, 0, 0, 0, 816, 400, 0, 0, 0, 0, 720, 168, 0, 0, 0, 0, 272, 168, 0, 0, 0, 0, 32, 656, 0, 0, 0, 0, -320, 656)
 }
 point_count = 7
 
@@ -99,22 +99,23 @@ position = Vector2(-190, 516)
 position = Vector2(1466, 522)
 
 [node name="SecondTop" type="Marker2D" parent="System/GenericSpawnPoints" unique_id=747433566]
-position = Vector2(1026, -190)
+position = Vector2(1026, -54)
 
 [node name="FirstTop" type="Marker2D" parent="System/GenericSpawnPoints" unique_id=975172821]
-position = Vector2(194, -190)
+position = Vector2(194, -54)
 
 [node name="FirstBottom" type="Marker2D" parent="System/GenericSpawnPoints" unique_id=999006455]
-position = Vector2(194, 898)
+position = Vector2(194, 770)
 
 [node name="SecondBottom" type="Marker2D" parent="System/GenericSpawnPoints" unique_id=967420919]
-position = Vector2(1026, 898)
+position = Vector2(1026, 770)
 
-[node name="WaveDirector" type="Node" parent="System" unique_id=822623695 node_paths=PackedStringArray("FlightPaths", "SpawnPoints", "GuidingPoints")]
+[node name="WaveDirector" type="Node" parent="System" unique_id=822623695 node_paths=PackedStringArray("FlightPaths", "SpawnPoints", "GuidingPoints", "CharactersContainer")]
 script = ExtResource("7_rkygg")
 FlightPaths = NodePath("../FlightPaths")
 SpawnPoints = NodePath("../GenericSpawnPoints")
 GuidingPoints = NodePath("../GuidingPoints")
+CharactersContainer = NodePath("../../Characters")
 
 [node name="GuidingPoints" type="Node2D" parent="System" unique_id=1259247012 node_paths=PackedStringArray("CenterLeftGuidingPoint", "CenterRightGuidingPoint", "CenterLeftExitPoint", "CenterRightExitPoint")]
 script = ExtResource("7_sx5r3")

@@ -52,9 +52,9 @@ public partial class PlayerCharacter : BaseCharacter
         localOffset.X *= facing;
         Vector2 spawnPosition = ToGlobal(localOffset);
 
-        ObjectPool.Instance.SpawnBullet<BaseBullet>(BulletData, spawnPosition, new Vector2(0.15f * facing, -0.15f), Team.Player);
+        ObjectPool.Instance.SpawnBullet<BaseBullet>(BulletData, new Vector2(spawnPosition.X, spawnPosition.Y - 24), new Vector2(facing, 0f), Team.Player);
         ObjectPool.Instance.SpawnBullet<BaseBullet>(BulletData, spawnPosition, new Vector2(facing, 0f), Team.Player);
-        ObjectPool.Instance.SpawnBullet<BaseBullet>(BulletData, spawnPosition, new Vector2(0.15f * facing, 0.15f), Team.Player);
+        ObjectPool.Instance.SpawnBullet<BaseBullet>(BulletData, new Vector2(spawnPosition.X, spawnPosition.Y + 24), new Vector2(facing, 0f), Team.Player);
     }
 
     private void FlipCharacter()

@@ -15,12 +15,6 @@ public partial class PlayerMovementComponent : MovementComponent
 		PlayerCharacter = GetParent<PlayerCharacter>();
 	}
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _PhysicsProcess(double delta)
-	{
-		Move(delta);
-	}
-
     public override void Move(double delta)
     {
         Vector2 velocity = PlayerCharacter.Velocity;

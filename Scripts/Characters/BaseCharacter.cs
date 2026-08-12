@@ -6,7 +6,7 @@ public partial class BaseCharacter : CharacterBody2D , IHurtable
 {
 	[ExportGroup("Components")]
 	[Export] public HealthComponent HealthComponent { get; private set; }
-	[Export] public MovementComponent MovementComponent { get; private set; }
+	[Export] public MovementComponent MovementComponent { get; set; }
 	[Export] public CharacterVisualComponent CharacterVisualComponent { get; private set; }
 	[ExportGroup("Identity")]
 	[Export] public string CharacterName { get; private set; } = "Unnamed";

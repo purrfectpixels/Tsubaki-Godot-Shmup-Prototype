@@ -1,6 +1,16 @@
 using Godot;
 using System;
 
+public enum EnemyState
+{
+	Spawning,
+	Entering,
+	Guided,
+	Active,
+	Exiting,
+	Dying
+}
+
 [GlobalClass]
 public partial class BaseEnemy : BaseCharacter
 {
@@ -14,6 +24,13 @@ public partial class BaseEnemy : BaseCharacter
 	// If they go offscreen again, they will be culled and removed from the scene.
 	[ExportGroup("Combat")]
 	[Export] public HitboxComponent Hitbox { get; set; }
+	[Export] public EnemyBulletEmitter LeftBarrel { get; set; }
+	[Export] public EnemyBulletEmitter RightBarrel { get; set; }
+	[ExportGroup("Movement")]
+	[Export] public Godot.Collections.Array<MovementComponent> RegisteredMovementComponents { get; set; }
+	public EnemyState CurrentState { get; protected set; } = EnemyState.Spawning;
+
+	protected bool facingRight = true;
 
 	public override void _Ready()
 	{
@@ -27,13 +44,30 @@ public partial class BaseEnemy : BaseCharacter
 		{
 			GD.PrintErr("HitboxComponent is not assigned for enemy: ", Name);
 		}
+
+		if (HealthComponent != null)
+		{
+			HealthComponent.Died += OnDeath;
+		}
+		if (VisibilityNotifier != null)
+		{
+			VisibilityNotifier.ScreenEntered += OnEnterScreen;
+		}
+		else
+		{
+			GD.PrintErr("Visibility notifier not assigned!");
+		}
+	}
+
+	private void OnEnterScreen()
+	{
+		_isActivated = true;
 	}
 
 	private bool IsOnScreen(float margin)
 	{
-		Rect2 view = GetViewportRect();
-		return GlobalPosition.X < -OffscreenCullMargin || GlobalPosition.X > view.Size.X + OffscreenCullMargin ||
-            GlobalPosition.Y < -OffscreenCullMargin || GlobalPosition.Y > view.Size.Y + OffscreenCullMargin;
+		Rect2 view = GetViewportRect().Grow(margin);
+		return view.HasPoint(GlobalPosition);
 	}
 
 	protected void CullIfOffscreen()
@@ -54,18 +88,77 @@ public partial class BaseEnemy : BaseCharacter
 		{
 			if (!HealthComponent.IsImmune())
 			{
-				HealthComponent.TakeDamage(1f); // Assuming 1 damage for now, can be adjusted later.
-				if (HealthComponent.IsDead)
-				{
-					Hitbox.Deactivate(); // Deactivate the hitbox if the character is dead
-				}
+				HealthComponent.TakeDamage(GlobalConstants.BaseDamage); // Assuming 1 damage for now, can be adjusted later.
 			}
 		}
+	}
+
+	protected virtual void Shoot()
+	{
+		
+	}
+
+	protected bool IsFacingRight()
+	{
+		if (Mathf.Abs(Velocity.X) > 0.01f)
+		{
+			facingRight = Velocity.X > 0f;
+		}
+		return facingRight;
 	}
 
 	public override void _Process(double delta)
 	{
 		base._Process(delta);
 		CullIfOffscreen();
+	}
+
+	protected T GetMovementComponent<T>() where T : MovementComponent
+	{
+		foreach(MovementComponent movementComponent in RegisteredMovementComponents)
+		{
+			if (movementComponent is T typed)
+			{
+				return typed;
+			}
+		}
+		GD.PrintErr($"{Name}: no {typeof(T).Name} found among MovementComponents.");
+		return null;
+	}
+
+	// Switch movement component
+	protected void SetActiveMovement(MovementComponent component)
+    {
+        if (MovementComponent != null)
+        {
+            MovementComponent.MovementCompleted -= OnActiveMovementCompleted;
+        }
+ 
+        MovementComponent = component;
+ 
+        if (MovementComponent != null)
+        {
+            MovementComponent.MovementCompleted += OnActiveMovementCompleted;
+        }
+    }
+
+	private void OnActiveMovementCompleted()
+    {
+        OnMovementCompleted(MovementComponent);
+    }
+	
+	// Override in a subclass to react to movement component reaching it's end
+	protected virtual void OnMovementCompleted(MovementComponent movementComponent)
+	{
+		if (movementComponent is SeekMovementComponent seekMovement)
+		{
+			seekMovement.SeekNext();	
+		}
+	}
+
+	protected virtual void OnDeath()
+	{
+		CurrentState = EnemyState.Dying;
+		Hitbox?.Deactivate(); // Deactivate the hitbox when the enemy dies
 	}
 }
