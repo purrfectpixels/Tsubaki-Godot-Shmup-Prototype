@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PathWaveData" format=3 uid="uid://cav14rmdq2fx1"]
+
+[ext_resource type="Script" uid="uid://cw7igepvbtugn" path="res://Scripts/Resources/Levels/PathWaveData.cs" id="1_oppad"]
+
+[resource]
+script = ExtResource("1_oppad")
+EnemyId = "TestPopcorn"
+PathNode = NodePath("System/FlightPaths/UpperRightPath")
+Count = 10
+Delay = 0.25
+metadata/_custom_type_script = "uid://cw7igepvbtugn"

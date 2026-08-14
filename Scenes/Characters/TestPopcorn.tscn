@@ -4,6 +4,8 @@
 [ext_resource type="Script" uid="uid://qkllb45qs8xt" path="res://Scripts/Components/Combat/HealthComponent.cs" id="2_1iu61"]
 [ext_resource type="Script" uid="uid://d0yrul240se1v" path="res://Scripts/Components/Effects/CharacterVisualComponent.cs" id="3_516dr"]
 [ext_resource type="Script" uid="uid://bfm1wrhme4ujh" path="res://Scripts/Components/Movement/PathLockedMovementComponent.cs" id="4_v7ru5"]
+[ext_resource type="Script" uid="uid://bmysycr4fmir5" path="res://Scripts/Components/Combat/DeathBurstAttack.cs" id="5_21rca"]
+[ext_resource type="Script" uid="uid://cnhvtmd1igdhj" path="res://Scripts/Components/Combat/PathPercentShootAttack.cs" id="5_r50n4"]
 [ext_resource type="Script" uid="uid://c3qsyr6lum74i" path="res://Scripts/Components/Movement/SeekMovementComponent.cs" id="5_v7ru5"]
 [ext_resource type="Script" uid="uid://bb55ie3hk2wk5" path="res://Scripts/Components/Combat/HitboxComponent.cs" id="6_p10hw"]
 [ext_resource type="Script" uid="uid://bdlmapdkiad51" path="res://Scripts/Components/Combat/HurtboxComponent.cs" id="7_33rhr"]
@@ -23,7 +25,6 @@ void fragment() {
 }"
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_1iu61"]
-resource_local_to_scene = true
 shader = SubResource("Shader_4u2vw")
 shader_parameter/flash_color = Color(1, 0, 0, 1)
 shader_parameter/flash_modifier = 0.0
@@ -37,13 +38,14 @@ size = Vector2(48, 48)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0idrr"]
 size = Vector2(48, 48)
 
-[node name="TestPopcorn" type="CharacterBody2D" unique_id=468094854 node_paths=PackedStringArray("VisibilityNotifier", "Hitbox", "LeftBarrel", "RightBarrel", "RegisteredMovementComponents", "HealthComponent", "MovementComponent", "CharacterVisualComponent", "CharacterSprite")]
+[node name="TestPopcorn" type="CharacterBody2D" unique_id=468094854 node_paths=PackedStringArray("VisibilityNotifier", "Hitbox", "LeftBarrel", "RightBarrel", "AttackControllers", "RegisteredMovementComponents", "HealthComponent", "MovementComponent", "CharacterVisualComponent", "CharacterSprite")]
+z_index = 3
 script = ExtResource("1_4u2vw")
-BulletSpeed = 300.0
 VisibilityNotifier = NodePath("VisibleOnScreenNotifier2D")
 Hitbox = NodePath("HitboxComponent")
 LeftBarrel = NodePath("LeftBarrel")
 RightBarrel = NodePath("RightBarrel")
+AttackControllers = [NodePath("PathPercentShootAttack"), NodePath("DeathBurstAttack")]
 RegisteredMovementComponents = [NodePath("PathLockedMovementComponent"), NodePath("SeekMovementComponent")]
 HealthComponent = NodePath("HealthComponent")
 MovementComponent = NodePath("PathLockedMovementComponent")
@@ -63,8 +65,8 @@ rect = Rect2(-24, -26, 48, 52)
 [node name="HealthComponent" type="Node" parent="." unique_id=578880687]
 script = ExtResource("2_1iu61")
 Health = 2.0
-MaxHealth = 4.0
-HitGraceDuration = 0.05
+MaxHealth = 2.0
+HitGraceDuration = 0.03
 metadata/_custom_type_script = "uid://qkllb45qs8xt"
 
 [node name="CharacterVisualComponent" type="Node" parent="." unique_id=959258529]
@@ -73,12 +75,19 @@ metadata/_custom_type_script = "uid://d0yrul240se1v"
 
 [node name="PathLockedMovementComponent" type="Node" parent="." unique_id=333618976]
 script = ExtResource("4_v7ru5")
-BaseSpeed = 500.0
+ShootTriggerPercents = PackedFloat32Array(0.25, 0.4)
+BaseSpeed = 425.0
 metadata/_custom_type_script = "uid://bfm1wrhme4ujh"
+
+[node name="PathPercentShootAttack" type="Node" parent="." unique_id=797895882]
+script = ExtResource("5_r50n4")
+metadata/_custom_type_script = "uid://cnhvtmd1igdhj"
 
 [node name="SeekMovementComponent" type="Node" parent="." unique_id=1377039056]
 script = ExtResource("5_v7ru5")
-BaseSpeed = 500.0
+ArrivalThreshold = 128.0
+FinalArrivalThreshold = 32.0
+BaseSpeed = 350.0
 metadata/_custom_type_script = "uid://c3qsyr6lum74i"
 
 [node name="HitboxComponent" type="Area2D" parent="." unique_id=532370843]
@@ -108,3 +117,8 @@ position = Vector2(24, 0)
 script = ExtResource("8_0idrr")
 BulletMeshId = "Pellet"
 metadata/_custom_type_script = "uid://cev50tpei10rf"
+
+[node name="DeathBurstAttack" type="Node" parent="." unique_id=929832168]
+script = ExtResource("5_21rca")
+BulletCount = 8
+metadata/_custom_type_script = "uid://bmysycr4fmir5"

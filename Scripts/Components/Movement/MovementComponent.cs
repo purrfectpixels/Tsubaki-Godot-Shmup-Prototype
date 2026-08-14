@@ -6,7 +6,7 @@ public abstract partial class MovementComponent : Node
 {
     [Signal] public delegate void MovementCompletedEventHandler();
 	[ExportGroup("Movement data")]
-	[Export] protected float BaseSpeed { get; set; } = 200f;
+	[Export] public float BaseSpeed { get; set; } = 200f;
 
 	protected CharacterBody2D ComponentOwner;
 

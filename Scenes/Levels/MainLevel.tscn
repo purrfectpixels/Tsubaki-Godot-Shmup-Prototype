@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://necp346b8dr5"]
 
 [ext_resource type="Script" uid="uid://bg84epswqlpmp" path="res://Scripts/Utilities/ObjectPool.cs" id="1_xatts"]
+[ext_resource type="PackedScene" uid="uid://13jpe5fdrn6i" path="res://Scenes/Characters/PlayerCharacter.tscn" id="1_yi6kr"]
 [ext_resource type="Script" uid="uid://cc36h1hluxycj" path="res://Scripts/Utilities/BulletsManager.cs" id="2_rfwi5"]
 [ext_resource type="Script" uid="uid://b26mhp0yko43n" path="res://Scripts/Utilities/BulletMesh.cs" id="3_jxtak"]
 [ext_resource type="Texture2D" uid="uid://ctu45l63jb2g0" path="res://Assets/Bullets/StandardPellet.png" id="4_xx3f3"]
@@ -37,6 +38,9 @@ point_count = 7
 
 [node name="Characters" type="Node2D" parent="." unique_id=368421604]
 
+[node name="PlayerCharacter" parent="Characters" unique_id=55314042 instance=ExtResource("1_yi6kr")]
+position = Vector2(584, 320)
+
 [node name="Entities" type="Node2D" parent="." unique_id=613662737]
 
 [node name="System" type="Node2D" parent="." unique_id=1370876422]
@@ -64,15 +68,23 @@ LowerRightPath = NodePath("LowerRightPath")
 LowerLeftPath = NodePath("LowerLeftPath")
 
 [node name="UpperRightPath" type="Path2D" parent="System/FlightPaths" unique_id=526661454]
+position = Vector2(117.33334, 0)
+scale = Vector2(0.5916667, 1)
 curve = SubResource("Curve2D_xx3f3")
 
 [node name="UpperLeftPath" type="Path2D" parent="System/FlightPaths" unique_id=1289900492]
+position = Vector2(105.33337, 0)
+scale = Vector2(0.6041667, 1)
 curve = SubResource("Curve2D_rqyoi")
 
 [node name="LowerLeftPath" type="Path2D" parent="System/FlightPaths" unique_id=1352495683]
+position = Vector2(118.66669, 0)
+scale = Vector2(0.59583336, 1)
 curve = SubResource("Curve2D_sx5r3")
 
 [node name="LowerRightPath" type="Path2D" parent="System/FlightPaths" unique_id=2077465539]
+position = Vector2(117.33334, 0)
+scale = Vector2(0.5916667, 1)
 curve = SubResource("Curve2D_kmvrn")
 
 [node name="GenericSpawnPoints" type="Node2D" parent="System" unique_id=1332383536 node_paths=PackedStringArray("UpperRightSpawnpoint", "UpperLeftSpawnpoint", "LowerRightSpawnpoint", "LowerLeftSpawnpoint", "FirstTopSpawnpoint", "SecondTopSpawnpoint", "FirstBottomSpawnpoint", "SecondBottomSpawnpoint")]
@@ -87,28 +99,28 @@ FirstBottomSpawnpoint = NodePath("FirstBottom")
 SecondBottomSpawnpoint = NodePath("SecondBottom")
 
 [node name="UpperRight" type="Marker2D" parent="System/GenericSpawnPoints" unique_id=762388151]
-position = Vector2(1466, 242)
+position = Vector2(1018, 234)
 
 [node name="UpperLeft" type="Marker2D" parent="System/GenericSpawnPoints" unique_id=2052139912]
-position = Vector2(-190, 234)
+position = Vector2(-68, 234)
 
 [node name="LowerLeft" type="Marker2D" parent="System/GenericSpawnPoints" unique_id=1422828904]
-position = Vector2(-190, 516)
+position = Vector2(-68, 516)
 
 [node name="LowerRight" type="Marker2D" parent="System/GenericSpawnPoints" unique_id=1996935531]
-position = Vector2(1466, 522)
+position = Vector2(1018, 514)
 
 [node name="SecondTop" type="Marker2D" parent="System/GenericSpawnPoints" unique_id=747433566]
-position = Vector2(1026, -54)
+position = Vector2(866, -54)
 
 [node name="FirstTop" type="Marker2D" parent="System/GenericSpawnPoints" unique_id=975172821]
-position = Vector2(194, -54)
+position = Vector2(96, -54)
 
 [node name="FirstBottom" type="Marker2D" parent="System/GenericSpawnPoints" unique_id=999006455]
-position = Vector2(194, 770)
+position = Vector2(96, 768)
 
 [node name="SecondBottom" type="Marker2D" parent="System/GenericSpawnPoints" unique_id=967420919]
-position = Vector2(1026, 770)
+position = Vector2(866, 770)
 
 [node name="WaveDirector" type="Node" parent="System" unique_id=822623695 node_paths=PackedStringArray("FlightPaths", "SpawnPoints", "GuidingPoints", "CharactersContainer")]
 script = ExtResource("7_rkygg")
@@ -125,15 +137,26 @@ CenterLeftExitPoint = NodePath("CenterLeftExit")
 CenterRightExitPoint = NodePath("CenterRightExit")
 
 [node name="CenterLeft" type="Marker2D" parent="System/GuidingPoints" unique_id=1196262004]
-position = Vector2(288, 368)
+position = Vector2(128, 368)
 
 [node name="CenterLeftExit" type="Marker2D" parent="System/GuidingPoints" unique_id=987549914]
-position = Vector2(-400, 368)
+position = Vector2(-278, 368)
 
 [node name="CenterRight" type="Marker2D" parent="System/GuidingPoints" unique_id=1095468217]
-position = Vector2(992, 368)
+position = Vector2(832, 368)
 
 [node name="CenterRightExit" type="Marker2D" parent="System/GuidingPoints" unique_id=717428015]
-position = Vector2(1672, 368)
+position = Vector2(1224, 360)
 
 [node name="LevelLayers" type="Node2D" parent="." unique_id=1824043456]
+
+[node name="LevelCharacters" type="Node2D" parent="LevelLayers" unique_id=442485906]
+
+[node name="LevelSpawnpoints" type="Node2D" parent="LevelLayers" unique_id=1440023185]
+
+[node name="LevelGuidepoints" type="Node2D" parent="LevelLayers" unique_id=125437347]
+
+[node name="ReferenceRect" type="ReferenceRect" parent="." unique_id=1287758891]
+custom_minimum_size = Vector2(960, 720)
+offset_right = 40.0
+offset_bottom = 40.0

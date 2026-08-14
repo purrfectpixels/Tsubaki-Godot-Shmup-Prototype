@@ -6,7 +6,7 @@ using System;
 public partial class BaseBullet : Node2D
 {
 	[Export] public HitboxComponent Hitbox { get; set; }
-	private int _outOfBoundsMargin = 50;
+	private int _outOfBoundsMargin = 4;
 	private BulletData _bulletData;
 	private bool _isActive = false;
 	private Vector2 _screenSize;
@@ -47,6 +47,9 @@ public partial class BaseBullet : Node2D
 		_isActive = false;
 		Position = Vector2.Zero;
 		Rotation = 0f;
+
+		if (Hitbox != null)
+			Hitbox.Deactivate();
 	}
 
 	public virtual void Recycle()
@@ -92,7 +95,7 @@ public partial class BaseBullet : Node2D
 		}
 	}
 	
-	private void OnHitboxEntered()
+	private void OnHitboxEntered(Area2D area)
 	{
 		Recycle();
 	}

@@ -26,9 +26,13 @@ public partial class BaseEnemy : BaseCharacter
 	[Export] public HitboxComponent Hitbox { get; set; }
 	[Export] public EnemyBulletEmitter LeftBarrel { get; set; }
 	[Export] public EnemyBulletEmitter RightBarrel { get; set; }
+	[Export] public Godot.Collections.Array<AttackController> AttackControllers { get; set; }
 	[ExportGroup("Movement")]
 	[Export] public Godot.Collections.Array<MovementComponent> RegisteredMovementComponents { get; set; }
+	[Export] public NavigationAgent2D NavigationAgent2D { get; set; }
 	public EnemyState CurrentState { get; protected set; } = EnemyState.Spawning;
+	public bool SuppressAutoMovementCompletion { get; set; } = false;
+	public bool IsActivated => _isActivated;
 
 	protected bool facingRight = true;
 
@@ -82,8 +86,10 @@ public partial class BaseEnemy : BaseCharacter
 		}
 	}
 
-	private void OnHitboxEntered() // Enemy collided with player's hurtbox, take damage.
+	private void OnHitboxEntered(Area2D area) // Enemy collided with player's hurtbox, take damage.
 	{
+		if (area is not HurtboxComponent)
+			return;
 		if (HealthComponent != null)
 		{
 			if (!HealthComponent.IsImmune())
@@ -100,20 +106,43 @@ public partial class BaseEnemy : BaseCharacter
 
 	protected bool IsFacingRight()
 	{
-		if (Mathf.Abs(Velocity.X) > 0.01f)
+		PlayerCharacter playerCharacter = PlayerService.Instance.PlayerCharacter;
+		if (playerCharacter == null)
 		{
-			facingRight = Velocity.X > 0f;
+			if (Mathf.Abs(Velocity.X) > 0.01f)
+			{
+				facingRight = Velocity.X > 0f;
+			}
 		}
+		else
+		{
+			facingRight = playerCharacter.GlobalPosition.X > GlobalPosition.X;
+		}
+			
 		return facingRight;
+	}
+
+	public EnemyBulletEmitter GetActiveBarrel()
+	{
+		return IsFacingRight() ? RightBarrel : LeftBarrel;
 	}
 
 	public override void _Process(double delta)
 	{
 		base._Process(delta);
 		CullIfOffscreen();
+
+		// Process attack
+		if (CurrentState != EnemyState.Dying)
+		{
+			foreach (AttackController attack in AttackControllers)
+			{
+				attack?.ProcessAttack(delta);
+			}
+		}
 	}
 
-	protected T GetMovementComponent<T>() where T : MovementComponent
+	public T GetMovementComponent<T>() where T : MovementComponent
 	{
 		foreach(MovementComponent movementComponent in RegisteredMovementComponents)
 		{
@@ -127,7 +156,7 @@ public partial class BaseEnemy : BaseCharacter
 	}
 
 	// Switch movement component
-	protected void SetActiveMovement(MovementComponent component)
+	public void SetActiveMovement(MovementComponent component)
     {
         if (MovementComponent != null)
         {
@@ -144,6 +173,7 @@ public partial class BaseEnemy : BaseCharacter
 
 	private void OnActiveMovementCompleted()
     {
+		if (SuppressAutoMovementCompletion) return;
         OnMovementCompleted(MovementComponent);
     }
 	

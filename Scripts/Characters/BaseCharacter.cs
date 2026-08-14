@@ -8,6 +8,7 @@ public partial class BaseCharacter : CharacterBody2D , IHurtable
 	[Export] public HealthComponent HealthComponent { get; private set; }
 	[Export] public MovementComponent MovementComponent { get; set; }
 	[Export] public CharacterVisualComponent CharacterVisualComponent { get; private set; }
+	[Export] public AttackController AttackController { get; private set; }
 	[ExportGroup("Identity")]
 	[Export] public string CharacterName { get; private set; } = "Unnamed";
 	[Export] public Sprite2D CharacterSprite { get; private set; }
@@ -52,15 +53,15 @@ public partial class BaseCharacter : CharacterBody2D , IHurtable
 
 	public void OnHurt(float damage)
     {
-        GD.Print("I am hurt! I lost ", damage);
+        // GD.Print("I am hurt! I lost ", damage);
         if(CharacterVisualComponent != null)
         {
-            CharacterVisualComponent.HitFlashRepeatedly();
+			CharacterVisualComponent.HitFlashRepeatedly();
         }
     }
 
 	public void OnHealthChanged(float health, float maxHP)
 	{
-		GD.Print("Ouch! I'm ", CharacterName, " and I am hurt!");
+		// GD.Print("Ouch! I'm ", CharacterName, " and I am hurt!");
 	}
 }

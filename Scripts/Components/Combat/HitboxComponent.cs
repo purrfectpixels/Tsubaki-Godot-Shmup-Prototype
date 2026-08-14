@@ -10,7 +10,7 @@ public enum Team
 [GlobalClass]
 public partial class HitboxComponent : Area2D
 {
-	[Signal] public delegate void HitboxEnteredEventHandler();
+	[Signal] public delegate void HitboxEnteredEventHandler(Area2D hurtbox);
     private CollisionShape2D _collisionShape { get; set; }
 
     private Team _team = Team.Player;

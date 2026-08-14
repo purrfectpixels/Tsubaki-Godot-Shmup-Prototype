@@ -4,7 +4,7 @@ using System;
 [GlobalClass]
 public partial class CharacterVisualComponent : Node
 {
-	private float _flashDuration = 2f;
+	private float _flashDuration = 0.25f;
 	private ShaderMaterial _shaderMaterial;
 	private Tween _flashTween;
     public override void _Ready()
@@ -16,7 +16,8 @@ public partial class CharacterVisualComponent : Node
 			var mat = character.CharacterSprite.Material;
 			if(mat is ShaderMaterial shaderMaterial)
 			{
-				_shaderMaterial = shaderMaterial;
+				_shaderMaterial = (ShaderMaterial)shaderMaterial.Duplicate(true);
+            	character.CharacterSprite.Material = _shaderMaterial;
 			}
 		}
     }

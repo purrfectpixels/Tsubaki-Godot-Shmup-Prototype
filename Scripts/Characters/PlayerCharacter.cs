@@ -10,10 +10,6 @@ public partial class PlayerCharacter : BaseCharacter
     [Export] public Marker2D HurtboxOrigin { get; set; }
     [ExportGroup("Combat Settings")]
     [Export] public Marker2D BulletSpawnPoint { get; set; }
-    [ExportGroup("COMBAT TESTING REMOVE LATER")]
-    [Export] public BulletData BulletData { get; set; } // FOR TESTING PURPOSES, REMOVE LATER
-    [Export] public float ShootCooldown { get; set; } = 0.5f;
-    private float _timeSinceLastShot = 0f;
 
     public override void _Ready()
     {
@@ -28,33 +24,6 @@ public partial class PlayerCharacter : BaseCharacter
         base._ExitTree();
         // Unregister the player character when it exits the scene tree
         PlayerService.Instance.UnregisterPlayer();
-    }
-
-    public void StressShoot(int bulletCount)
-    {
-        float angleStep = 360f / bulletCount;
-        for (int i = 0; i < bulletCount; i++)
-        {
-            float angleRad = Mathf.DegToRad(i * angleStep);
-            Vector2 direction = Vector2.Right.Rotated(angleRad);
-
-            ObjectPool.Instance.SpawnBullet<BaseBullet>(BulletData, BulletSpawnPoint.GlobalPosition, direction);
-        }
-    }
-
-    public void Shoot()
-    {
-        if (BulletSpawnPoint == null || CharacterSprite == null)
-            return;
-
-        float facing = CharacterSprite.FlipH ? -1f : 1f;
-        Vector2 localOffset = BulletSpawnPoint.Position;
-        localOffset.X *= facing;
-        Vector2 spawnPosition = ToGlobal(localOffset);
-
-        ObjectPool.Instance.SpawnBullet<BaseBullet>(BulletData, new Vector2(spawnPosition.X, spawnPosition.Y - 24), new Vector2(facing, 0f), Team.Player);
-        ObjectPool.Instance.SpawnBullet<BaseBullet>(BulletData, spawnPosition, new Vector2(facing, 0f), Team.Player);
-        ObjectPool.Instance.SpawnBullet<BaseBullet>(BulletData, new Vector2(spawnPosition.X, spawnPosition.Y + 24), new Vector2(facing, 0f), Team.Player);
     }
 
     private void FlipCharacter()
@@ -73,16 +42,8 @@ public partial class PlayerCharacter : BaseCharacter
     {
         base._PhysicsProcess(delta);
         FlipCharacter();
-        if (_timeSinceLastShot < ShootCooldown)
-        {
-            _timeSinceLastShot += (float)delta;
-        }
-        if(_timeSinceLastShot >= ShootCooldown)
-        {
-            //StressShoot(50); // Example: Shoot 3 bullets in a spread pattern
-            Shoot();
-            _timeSinceLastShot = 0f;
-        }
+
+        AttackController?.ProcessAttack(delta);
     }
 
     public override void _Draw()

@@ -4,10 +4,6 @@ using System;
 [GlobalClass]
 public partial class PopcornEnemy : BaseEnemy
 {
-	[ExportGroup("Enemy AI Settings")]
-	[Export] public Node AttackController { get; set; }
-	[ExportGroup("Combat Settings")]
-	[Export] public float BulletSpeed { get; set; } = 150f;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -16,46 +12,18 @@ public partial class PopcornEnemy : BaseEnemy
 		CurrentState = EnemyState.Entering;
 	}
 
-    protected override void Shoot()
-    {
-        if (LeftBarrel == null && RightBarrel == null)
-		{
-			return;
-		}
-
-		if (!_isActivated)
-		{
-			return;
-		}
-
-		if(IsFacingRight())
-		{
-			RightBarrel.FireAimedSingle(BulletSpeed);
-		}
-		else
-		{
-			LeftBarrel.FireAimedSingle(BulletSpeed);
-		}
-    }
-
-	private void OnShoot()
-	{
-		Shoot();
-	}
-
 	// Called by WaveDirector after spawning the enemy to run on a path
-	public void SetupPath(Path2D path, int playerIndex = -1)
+	public void SetupPath(Path2D path, Vector2 formationOffset = default, float speedOverride = -1f, int playerIndex = -1)
 	{
 		PathLockedMovementComponent pathMoveComponent = GetMovementComponent<PathLockedMovementComponent>();
-
+ 
 		if (pathMoveComponent == null) return;
-		pathMoveComponent.Shoot += OnShoot;
-		pathMoveComponent.StartPath(path);
+		pathMoveComponent.StartPath(path, formationOffset, speedOverride);
 		SetActiveMovement(pathMoveComponent);
 	}
 
 	// Called by WaveDirector after spawning the enemy to use seeking movement system
-	public void SetupSeek(System.Collections.Generic.Stack<Vector2> targetPositions, int playerIndex = -1)
+	public void SetupSeek(System.Collections.Generic.Stack<Node2D> targetPositions)
     {
         SeekMovementComponent movement = GetMovementComponent<SeekMovementComponent>();
         if (movement == null)
@@ -63,7 +31,7 @@ public partial class PopcornEnemy : BaseEnemy
             return;
         }
 
-        movement.InsertStack(targetPositions, playerIndex);
+        movement.InsertStack(targetPositions);
         if (MovementComponent is not SeekMovementComponent)
 		{
 			SetActiveMovement(movement);
@@ -75,5 +43,4 @@ public partial class PopcornEnemy : BaseEnemy
         base.OnDeath();
 		QueueFree(); // TODO: Replace this with object pooling
     }
-
 }

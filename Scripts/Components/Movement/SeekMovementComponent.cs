@@ -6,85 +6,120 @@ using System.ComponentModel;
 [GlobalClass]
 public partial class SeekMovementComponent : MovementComponent
 {
-	[Export] public float ArrivalThreshold { get; set; } = 32f;
+	[Export] public float ArrivalThreshold { get; set; } = 32f; // Distance at which player's position gets "locked in"
+	[Export] public float FinalArrivalThreshold { get; set; } = 4f; // Distance considered "fully arrived" at a target
 
-	private Stack<Vector2> _multiDestinationsStack = new Stack<Vector2>();
-	private Vector2 _target;
-	private bool _isMoving = false; 
-	private int _playerIndex = -1;
-	private int _currentIndex = 0;
+	private Stack<Node2D> _multiDestinationsStack = new Stack<Node2D>();
+	private Node2D _target;
+	private bool _isMoving = false;
 
-	public void InsertStack(Stack<Vector2> multiDestinationsStack, int playerIndex = -1)
+	private bool _playerPositionLocked = false;
+	private Vector2 _lockedTargetPosition;
+
+    public Node2D CurrentTarget => _target;
+
+	public void InsertStack(Stack<Node2D> multiDestinationsStack, int playerIndex = -1)
 	{
-		if (multiDestinationsStack.Count <= 0)
-			return;
-		_playerIndex = playerIndex;
-		_multiDestinationsStack = multiDestinationsStack;
-		SeekTo(_multiDestinationsStack.Pop()); 
+		if (multiDestinationsStack == null || multiDestinationsStack.Count <= 0)
+            return;
+
+        _multiDestinationsStack = multiDestinationsStack;
+        SeekNext();
 	}
 
-	public void SeekTo(Vector2 globalTarget)
+	public void SeekTo(Node2D targetNode)
 	{
-		_target = globalTarget;
-		_isMoving = true;
+		if (!GodotObject.IsInstanceValid(targetNode))
+        {
+            SeekNext();
+            return;
+        }
+
+        _target = targetNode;
+        _isMoving = true;
+        _playerPositionLocked = false;
+        _lockedTargetPosition = Vector2.Zero;
 	}
 
 	public void Stop()
 	{
 		_isMoving = false;
-		ComponentOwner.Velocity = Vector2.Zero;
+        _target = null;
+        _playerPositionLocked = false;
+        _lockedTargetPosition = Vector2.Zero;
+        if (ComponentOwner != null)
+        {
+            ComponentOwner.Velocity = Vector2.Zero;
+        }
 	}
 
     public override void Move(double delta)
     {
-        if (!_isMoving)
-		{
-			return;
-		}
-		
-		if (_currentIndex == _playerIndex)
-		{
-			PlayerCharacter playerCharacter = PlayerService.Instance.PlayerCharacter;
+        if (!_isMoving) return;
 
-			if (playerCharacter != null)
-			{
-				_target = playerCharacter.GlobalPosition;
-			}
-			else
-			{
-				// No player to chase right now — bail out of this leg instead of stalling forever
-				SeekNext();
-				return;
-			}
-		}
+        if (!GodotObject.IsInstanceValid(_target))
+        {
+            SeekNext();
+            return;
+        }
 
-		Vector2 toTarget = _target - ComponentOwner.GlobalPosition;
-		float distance = toTarget.Length();
+        Vector2 currentTargetPos = _target.GlobalPosition;
 
-		if (distance <= ArrivalThreshold)
-		{
-			ComponentOwner.GlobalPosition = _target;
-			EmitSignal(SignalName.MovementCompleted);
-			if (_playerIndex >= 0)
-			{
-				_currentIndex++;
-			}
-			return;
-		}
+        if (_target is PlayerCharacter)
+        {
+            if (!_playerPositionLocked)
+            {
+                PlayerCharacter playerCharacter = PlayerService.Instance?.PlayerCharacter;
+                if (GodotObject.IsInstanceValid(playerCharacter))
+                {
+                    currentTargetPos = playerCharacter.GlobalPosition;
+                }
+                else
+                {
+                    SeekNext();
+                    return;
+                }
 
-		ComponentOwner.Velocity = toTarget.Normalized() * BaseSpeed;
-		ComponentOwner.MoveAndSlide();
+                float distanceToPlayer = (currentTargetPos - ComponentOwner.GlobalPosition).Length();
+                if (distanceToPlayer <= ArrivalThreshold)
+                {
+                    // Lock in the player's last known position instead of continuing to track them live.
+                    _playerPositionLocked = true;
+                    _lockedTargetPosition = currentTargetPos;
+                }
+            }
+
+            if (_playerPositionLocked)
+            {
+                currentTargetPos = _lockedTargetPosition;
+            }
+        }
+
+        Vector2 toTarget = currentTargetPos - ComponentOwner.GlobalPosition;
+        float distance = toTarget.Length();
+
+        if (distance <= FinalArrivalThreshold)
+        {
+            EmitSignal(SignalName.MovementCompleted);
+            return;
+        }
+
+        ComponentOwner.Velocity = toTarget.Normalized() * BaseSpeed;
+        ComponentOwner.MoveAndSlide();
     }
 
 	public void SeekNext()
-	{
-		if (_multiDestinationsStack.Count > 0)
-		{
-			SeekTo(_multiDestinationsStack.Pop()); 
-		}
-		else
-		{
-			Stop();
-		}
-	}
+    {
+        while (_multiDestinationsStack != null && _multiDestinationsStack.Count > 0)
+        {
+            Node2D nextNode = _multiDestinationsStack.Pop();
+            if (GodotObject.IsInstanceValid(nextNode))
+            {
+                SeekTo(nextNode);
+                return;
+            }
+        }
+
+        Stop();
+    }
 }

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="WaveData" format=3 uid="uid://bn0dor1vfunql"]
+
+[ext_resource type="Script" uid="uid://25jwxjabmwov" path="res://Scripts/Resources/Levels/WaveData.cs" id="1_ey2xm"]
+
+[resource]
+script = ExtResource("1_ey2xm")
+enemyId = "TestPopcorn"
+spawnPoint = NodePath("LevelLayers/LevelSpawnpoints/Spawn")
+guidingPoints = Array[NodePath]([NodePath("System/GuidingPoints/CenterRight"), NodePath("Characters/PlayerCharacter")])
+exitPoint = NodePath("System/GuidingPoints/CenterLeftExit")
+count = 10
+metadata/_custom_type_script = "uid://25jwxjabmwov"

@@ -4,21 +4,64 @@
 [ext_resource type="PackedScene" uid="uid://brxby8ikdn3c6" path="res://Scenes/Levels/SandboxLevel.tscn" id="2_frf35"]
 [ext_resource type="Script" uid="uid://ddwemg3rs0a0j" path="res://Scripts/UI/FpsLabel.cs" id="3_yprpe"]
 
-[node name="MainGame" type="Node2D" unique_id=1239374070]
+[sub_resource type="CanvasTexture" id="CanvasTexture_yprpe"]
+
+[node name="MainGame" type="Node2D" unique_id=1239374070 node_paths=PackedStringArray("LevelContainer")]
 script = ExtResource("1_8etcy")
+LevelContainer = NodePath("GameViewportContainer/GameViewport/LevelContainer")
 
 [node name="GameSystem" type="Node" parent="." unique_id=712390154]
 
-[node name="LevelContainer" type="Node2D" parent="." unique_id=897594932]
-
-[node name="SandboxLevel" parent="LevelContainer" unique_id=1635673667 instance=ExtResource("2_frf35")]
-
 [node name="MainAudio" type="AudioStreamPlayer" parent="." unique_id=280062142]
 
-[node name="UI" type="CanvasLayer" parent="." unique_id=70323385]
+[node name="DebugUI" type="CanvasLayer" parent="." unique_id=70323385]
 
-[node name="FPSLabel" type="Label" parent="UI" unique_id=902006482]
+[node name="FPSLabel" type="Label" parent="DebugUI" unique_id=902006482]
 offset_right = 40.0
 offset_bottom = 23.0
 text = "FPS: "
 script = ExtResource("3_yprpe")
+
+[node name="FrameBackground" type="Control" parent="." unique_id=1881805065]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1280.0
+offset_bottom = 720.0
+
+[node name="Background" type="TextureRect" parent="FrameBackground" unique_id=1271174325]
+modulate = Color(0, 0, 0, 1)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("CanvasTexture_yprpe")
+
+[node name="LeftBackground" type="TextureRect" parent="FrameBackground" unique_id=920363820]
+custom_minimum_size = Vector2(160, 720)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="RightBackground" type="TextureRect" parent="FrameBackground" unique_id=585950700]
+custom_minimum_size = Vector2(160, 720)
+layout_mode = 0
+offset_left = 1120.0
+offset_right = 1160.0
+offset_bottom = 40.0
+
+[node name="GameViewportContainer" type="SubViewportContainer" parent="." unique_id=393918033]
+offset_left = 160.0
+offset_right = 1120.0
+offset_bottom = 720.0
+stretch = true
+
+[node name="GameViewport" type="SubViewport" parent="GameViewportContainer" unique_id=1646016260]
+handle_input_locally = false
+size = Vector2i(960, 720)
+render_target_update_mode = 4
+
+[node name="LevelContainer" type="Node2D" parent="GameViewportContainer/GameViewport" unique_id=897594932]
+
+[node name="SandboxLevel" parent="GameViewportContainer/GameViewport/LevelContainer" unique_id=1635673667 instance=ExtResource("2_frf35")]
