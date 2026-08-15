@@ -41,4 +41,11 @@ public partial class TimedRepeatAttack : EnemyAttackController
     {
         EnemyOwner?.GetActiveBarrel()?.FireAimedSingle(BulletSpeed);
     }
+
+	public override void ResetAttack()
+    {
+        _onscreenTimer = 0f;
+        _fireTimer = 0f;
+        _isFiring = false;
+    }
 }

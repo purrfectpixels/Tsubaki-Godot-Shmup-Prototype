@@ -85,6 +85,16 @@ public partial class PathLockedMovementComponent : MovementComponent
 		ComponentOwner.GlobalPosition = SampleGlobalPosition(_distanceAlongPath);
 	}
 
+	public override void StopAndReset()
+	{
+		_path = null;
+		_distanceAlongPath = 0f;
+		_pathLength = 0f;
+		_isMoving = false;
+		_shootTriggersFired = Array.Empty<bool>();
+		_formationOffset = Vector2.Zero;
+	}
+
 	private void CheckShootTriggers()
 	{
 		float progress = ProgressRatio;

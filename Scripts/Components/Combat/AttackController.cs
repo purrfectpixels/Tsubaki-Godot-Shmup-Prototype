@@ -14,4 +14,6 @@ public partial class AttackController : Node
 
 	public virtual void ProcessAttack(double delta) { }
     public virtual void ExecuteAttack() { }
+
+    public virtual void ResetAttack() { }
 }

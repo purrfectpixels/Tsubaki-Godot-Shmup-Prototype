@@ -7,4 +7,5 @@
 script = ExtResource("1_4086w")
 EnemyId = "TestPopcorn"
 EnemyScene = ExtResource("1_eyych")
+InitialPoolSize = 25
 metadata/_custom_type_script = "uid://c81f1yamy730i"

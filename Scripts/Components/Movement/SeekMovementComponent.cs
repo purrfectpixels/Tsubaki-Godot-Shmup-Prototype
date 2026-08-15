@@ -53,6 +53,12 @@ public partial class SeekMovementComponent : MovementComponent
         }
 	}
 
+    public override void StopAndReset()
+	{
+		Stop();
+		_multiDestinationsStack = new Stack<Node2D>();
+	}
+
     public override void Move(double delta)
     {
         if (!_isMoving) return;

@@ -1,0 +1,108 @@
+[gd_scene format=3 uid="uid://fuo021fcgfkt"]
+
+[ext_resource type="Script" uid="uid://3qtu5y23v6fa" path="res://Scripts/Characters/DiveEnemy.cs" id="1_6ofj4"]
+[ext_resource type="Script" uid="uid://qkllb45qs8xt" path="res://Scripts/Components/Combat/HealthComponent.cs" id="2_hbuxq"]
+[ext_resource type="Script" uid="uid://d0yrul240se1v" path="res://Scripts/Components/Effects/CharacterVisualComponent.cs" id="3_r1s6p"]
+[ext_resource type="Script" uid="uid://c3qsyr6lum74i" path="res://Scripts/Components/Movement/SeekMovementComponent.cs" id="4_rbus8"]
+[ext_resource type="Script" uid="uid://tvnh7vft75f5" path="res://Scripts/Components/Combat/DiveAndFleeAttack.cs" id="5_sausb"]
+[ext_resource type="Script" uid="uid://cev50tpei10rf" path="res://Scripts/Components/Combat/EnemyBulletEmitter.cs" id="6_mlcns"]
+[ext_resource type="Script" uid="uid://bb55ie3hk2wk5" path="res://Scripts/Components/Combat/HitboxComponent.cs" id="7_0pml4"]
+[ext_resource type="Script" uid="uid://bdlmapdkiad51" path="res://Scripts/Components/Combat/HurtboxComponent.cs" id="8_4bv37"]
+
+[sub_resource type="Shader" id="Shader_4u2vw"]
+code = "shader_type canvas_item;
+
+uniform vec4 flash_color : source_color = vec4(1.0, 0.0, 0.0, 1.0);
+uniform float flash_modifier : hint_range(0.0, 1.0) = 0.0;
+
+void fragment() {
+    vec4 color = texture(TEXTURE, UV);
+    // Mix original texture RGB with the target flash color based on flash_modifier
+    color.rgb = mix(color.rgb, flash_color.rgb, flash_modifier);
+    COLOR = color;
+}"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6ofj4"]
+resource_local_to_scene = true
+shader = SubResource("Shader_4u2vw")
+shader_parameter/flash_color = Color(1, 0, 0, 1)
+shader_parameter/flash_modifier = 0.0
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_hbuxq"]
+load_path = "res://.godot/imported/icon.svg-218a8f2b3041327d8a5756f3a245f83b.ctex"
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_w5qo2"]
+size = Vector2(48, 48)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_457k8"]
+size = Vector2(48, 48)
+
+[node name="TestDiver" type="CharacterBody2D" unique_id=1786135924 node_paths=PackedStringArray("VisibilityNotifier", "Hitbox", "Hurtbox", "LeftBarrel", "RightBarrel", "AttackControllers", "RegisteredMovementComponents", "HealthComponent", "CharacterVisualComponent", "CharacterSprite")]
+script = ExtResource("1_6ofj4")
+VisibilityNotifier = NodePath("VisibleOnScreenNotifier2D")
+Hitbox = NodePath("HitboxComponent")
+Hurtbox = NodePath("HurtboxComponent")
+LeftBarrel = NodePath("LeftBarrel")
+RightBarrel = NodePath("RightBarrel")
+AttackControllers = [NodePath("DiveAndFleeAttack")]
+RegisteredMovementComponents = [NodePath("SeekMovementComponent")]
+HealthComponent = NodePath("HealthComponent")
+CharacterVisualComponent = NodePath("CharacterVisualComponent")
+CharacterSprite = NodePath("Sprite2D")
+metadata/_custom_type_script = "uid://3qtu5y23v6fa"
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=206722230]
+material = SubResource("ShaderMaterial_6ofj4")
+scale = Vector2(0.4, 0.4)
+texture = SubResource("CompressedTexture2D_hbuxq")
+
+[node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="." unique_id=1224483917]
+rect = Rect2(-24, -26, 48, 52)
+
+[node name="HealthComponent" type="Node" parent="." unique_id=1512487764]
+script = ExtResource("2_hbuxq")
+Health = 4.0
+MaxHealth = 4.0
+HitGraceDuration = 0.03
+metadata/_custom_type_script = "uid://qkllb45qs8xt"
+
+[node name="CharacterVisualComponent" type="Node" parent="." unique_id=260606587]
+script = ExtResource("3_r1s6p")
+metadata/_custom_type_script = "uid://d0yrul240se1v"
+
+[node name="SeekMovementComponent" type="Node" parent="." unique_id=1395770032]
+script = ExtResource("4_rbus8")
+metadata/_custom_type_script = "uid://c3qsyr6lum74i"
+
+[node name="DiveAndFleeAttack" type="Node" parent="." unique_id=873316158]
+script = ExtResource("5_sausb")
+BulletsPerBurst = 3
+metadata/_custom_type_script = "uid://tvnh7vft75f5"
+
+[node name="LeftBarrel" type="Node2D" parent="." unique_id=1614988164]
+position = Vector2(-24, 0)
+script = ExtResource("6_mlcns")
+BulletMeshId = "Pellet"
+metadata/_custom_type_script = "uid://cev50tpei10rf"
+
+[node name="RightBarrel" type="Node2D" parent="." unique_id=1258438597]
+position = Vector2(24, 0)
+script = ExtResource("6_mlcns")
+BulletMeshId = "Pellet"
+metadata/_custom_type_script = "uid://cev50tpei10rf"
+
+[node name="HitboxComponent" type="Area2D" parent="." unique_id=570230594]
+script = ExtResource("7_0pml4")
+metadata/_custom_type_script = "uid://bb55ie3hk2wk5"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitboxComponent" unique_id=2136467136]
+shape = SubResource("RectangleShape2D_w5qo2")
+debug_color = Color(0.9993934, 0, 0.12844995, 0.41960785)
+
+[node name="HurtboxComponent" type="Area2D" parent="." unique_id=868050285]
+script = ExtResource("8_4bv37")
+metadata/_custom_type_script = "uid://bdlmapdkiad51"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent" unique_id=920030965]
+shape = SubResource("RectangleShape2D_457k8")
+debug_color = Color(0.3078445, 0.6278484, 1.92523e-07, 0.41960785)

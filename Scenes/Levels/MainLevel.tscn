@@ -9,6 +9,9 @@
 [ext_resource type="Script" uid="uid://bmyjou7aoaq0" path="res://Scripts/Utilities/Pathfinding/SpawnPoints.cs" id="6_sx5r3"]
 [ext_resource type="Script" uid="uid://qqai2ae4bl22" path="res://Scripts/Spawners/WaveDirector.cs" id="7_rkygg"]
 [ext_resource type="Script" uid="uid://csliqc4080amy" path="res://Scripts/Utilities/Pathfinding/GuidingPoints.cs" id="7_sx5r3"]
+[ext_resource type="Script" uid="uid://dpd3wcpckxp74" path="res://Scripts/Utilities/EnemyPool.cs" id="10_8236u"]
+[ext_resource type="Script" uid="uid://c81f1yamy730i" path="res://Scripts/Resources/Characters/EnemyData.cs" id="11_7woyo"]
+[ext_resource type="Resource" uid="uid://c7ucm8dlrf5py" path="res://Resources/Enemies/TestPopcorn.tres" id="12_yce48"]
 
 [sub_resource type="Curve2D" id="Curve2D_xx3f3"]
 _data = {
@@ -147,6 +150,11 @@ position = Vector2(832, 368)
 
 [node name="CenterRightExit" type="Marker2D" parent="System/GuidingPoints" unique_id=717428015]
 position = Vector2(1224, 360)
+
+[node name="EnemyPool" type="Node2D" parent="System" unique_id=1993133765]
+script = ExtResource("10_8236u")
+RegisteredEnemyData = Array[ExtResource("11_7woyo")]([ExtResource("12_yce48")])
+metadata/_custom_type_script = "uid://dpd3wcpckxp74"
 
 [node name="LevelLayers" type="Node2D" parent="." unique_id=1824043456]
 

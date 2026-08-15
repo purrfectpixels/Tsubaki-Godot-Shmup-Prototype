@@ -6,6 +6,8 @@
 [ext_resource type="Script" uid="uid://brqodq55auv82" path="res://Scripts/Resources/Combat/BulletData.cs" id="5_4c52t"]
 [ext_resource type="Resource" uid="uid://basy1o8hlypq1" path="res://Resources/Bullets/TestBullet.tres" id="6_beuee"]
 [ext_resource type="Resource" uid="uid://dd5dpadmnx056" path="res://Resources/Levels/SandboxLevel/FormationWave1.tres" id="6_mu8i2"]
+[ext_resource type="Resource" uid="uid://qivqho1udhcu" path="res://Resources/Levels/SandboxLevel/DiveWave1.tres" id="7_ca7po"]
+[ext_resource type="Resource" uid="uid://bwq5cxa1o3117" path="res://Resources/Enemies/TestDiver.tres" id="9_jfaew"]
 [ext_resource type="Texture2D" uid="uid://b7vugdxdikdsk" path="res://Assets/Tilesets/Terrain (16x16).png" id="10_jfaew"]
 [ext_resource type="Script" uid="uid://c81f1yamy730i" path="res://Scripts/Resources/Characters/EnemyData.cs" id="12_5vd47"]
 [ext_resource type="Resource" uid="uid://c7ucm8dlrf5py" path="res://Resources/Enemies/TestPopcorn.tres" id="13_6hne3"]
@@ -47,8 +49,8 @@ tracks/1/path = NodePath("WaveDirector")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(1.8666667, 4.8333335, 23.566668),
-"transitions": PackedFloat32Array(1, 1, 1),
+"times": PackedFloat32Array(1.8666667, 4.8333335, 23.566668, 30),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
 "values": [{
 "args": [ExtResource("4_tsqwa")],
 "method": &"SpawnPathWave"
@@ -58,6 +60,9 @@ tracks/1/keys = {
 }, {
 "args": [ExtResource("6_mu8i2")],
 "method": &"SpawnRigidFormationWave"
+}, {
+"args": [ExtResource("7_ca7po")],
+"method": &"SpawnDiveAndFleeWave"
 }]
 }
 
@@ -250,7 +255,9 @@ curve = SubResource("Curve2D_tsqwa")
 
 [node name="WaveDirector" parent="System" parent_id_path=PackedInt32Array(1370876422) index="5" unique_id=822623695 node_paths=PackedStringArray("MovingCharactersContainer")]
 MovingCharactersContainer = NodePath("../../LevelLayers/LevelCharacters")
-RegisteredEnemyData = Array[ExtResource("12_5vd47")]([ExtResource("13_6hne3")])
+
+[node name="EnemyPool" parent="System" parent_id_path=PackedInt32Array(1370876422) index="7" unique_id=1993133765]
+RegisteredEnemyData = Array[ExtResource("12_5vd47")]([ExtResource("13_6hne3"), ExtResource("9_jfaew")])
 
 [node name="TileMapLayer" type="TileMapLayer" parent="LevelLayers" parent_id_path=PackedInt32Array(1824043456) index="0" unique_id=1081511057]
 texture_filter = 1

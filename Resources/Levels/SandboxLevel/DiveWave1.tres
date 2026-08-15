@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="DiveWaveData" format=3 uid="uid://qivqho1udhcu"]
+
+[ext_resource type="Script" uid="uid://cbkm47u8agc40" path="res://Scripts/Resources/Levels/DiveWaveData.cs" id="1_bn7ps"]
+
+[resource]
+script = ExtResource("1_bn7ps")
+EnemyId = "TestDiver"
+SpawnPoint = NodePath("System/GenericSpawnPoints/SecondBottom")
+EntryPoint = NodePath("System/GuidingPoints/CenterRight")
+ExitPoint = NodePath("System/GuidingPoints/CenterRightExit")
+Shape = 3
+Spacing = 64.0
+Count = 5
+metadata/_custom_type_script = "uid://cbkm47u8agc40"

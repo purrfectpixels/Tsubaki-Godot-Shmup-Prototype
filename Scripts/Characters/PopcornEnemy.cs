@@ -12,6 +12,13 @@ public partial class PopcornEnemy : BaseEnemy
 		CurrentState = EnemyState.Entering;
 	}
 
+	// Runs every time this pooled instance is dispensed (not just the first time),
+	// so state that _Ready only sets once still gets reapplied on reuse.
+	protected override void OnSpawnedFromPool()
+	{
+		CurrentState = EnemyState.Entering;
+	}
+
 	// Called by WaveDirector after spawning the enemy to run on a path
 	public void SetupPath(Path2D path, Vector2 formationOffset = default, float speedOverride = -1f, int playerIndex = -1)
 	{
@@ -41,6 +48,6 @@ public partial class PopcornEnemy : BaseEnemy
     protected override void OnDeath()
     {
         base.OnDeath();
-		QueueFree(); // TODO: Replace this with object pooling
+		Despawn();
     }
 }

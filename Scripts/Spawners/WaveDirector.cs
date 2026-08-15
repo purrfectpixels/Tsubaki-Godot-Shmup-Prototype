@@ -1,303 +1,179 @@
 using Godot;
-using GodotPlugins.Game;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 
 public enum FormationShape
 {
-    Line, // 0
-    Arc, // 1
-    Grid, // 2
+    Line,   // 0
+    Arc,    // 1
+    Grid,   // 2
     VWedge, // 3
-	Column,
-	Circle
+    Column,
+    Circle
 }
 
 public partial class WaveDirector : Node
 {
-	[Export] public FlightPaths FlightPaths { get; set; } // This is for enemies that follow a path. 
-	// Contains all generic flight paths for enemies to follow.
-	[Export] public SpawnPoints SpawnPoints { get; set; } // This is for enemies that follow the guiding points 
-	// or the guiding point and then the player. Contains all generic spawn points for enemies to spawn at.
-	[Export] public GuidingPoints GuidingPoints { get; set; } // This is for enemies to follow initially before 
-	// they start following the player or exit point. Contains both guiding points and exit points for enemies to follow.
-	
-	[Export] public Node2D CharactersContainer { get; set; }
-	[Export] public Node2D MovingCharactersContainer { get; set; }
+    [Export] public FlightPaths FlightPaths { get; set; }
+    [Export] public SpawnPoints SpawnPoints { get; set; }
+    [Export] public GuidingPoints GuidingPoints { get; set; }
+    
+    [Export] public Node2D CharactersContainer { get; set; }
+    [Export] public Node2D MovingCharactersContainer { get; set; }
 
-	[Export] public Godot.Collections.Array<EnemyData> RegisteredEnemyData { get; set; } = new Godot.Collections.Array<EnemyData>();
-	private Dictionary<string, PackedScene> _enemyScenes = new Dictionary<string, PackedScene>();
+    public override void _Ready()
+    {
+        Callable.From(InitializationTest).CallDeferred();
+    }
 
-	private void InitalizationTest()
-	{
-		int errorCount = 0;
-		if (FlightPaths == null)
-		{
-			GD.PrintErr("FlightPaths is not assigned in WaveDirector.");
-			errorCount++;
-		}
-		if (SpawnPoints == null)
-		{
-			GD.PrintErr("SpawnPoints is not assigned in WaveDirector.");
-			errorCount++;
-		}
-		if (GuidingPoints == null)
-		{
-			GD.PrintErr("GuidingPoints is not assigned in WaveDirector.");
-			errorCount++;
-		}
+    private void InitializationTest()
+    {
+        int errorCount = 0;
 
-		if (FlightPaths.UpperRightPath == null)
-		{
-			GD.PrintErr("UpperRightPath is not assigned in FlightPaths.");
-			errorCount++;
-		}
-		if (FlightPaths.UpperLeftPath == null)
-		{
-			GD.PrintErr("UpperLeftPath is not assigned in FlightPaths.");
-			errorCount++;
-		}
-		if (FlightPaths.LowerRightPath == null)
-		{
-			GD.PrintErr("LowerRightPath is not assigned in FlightPaths.");
-			errorCount++;
-		}
-		if (FlightPaths.LowerLeftPath == null)
-		{
-			GD.PrintErr("LowerLeftPath is not assigned in FlightPaths.");
-			errorCount++;
-		}
-		if (SpawnPoints.UpperRightSpawnpoint == null)
-		{
-			GD.PrintErr("UpperRightSpawnpoint is not assigned in SpawnPoints.");
-			errorCount++;
-		}
-		if (SpawnPoints.UpperLeftSpawnpoint == null)
-		{
-			GD.PrintErr("UpperLeftSpawnpoint is not assigned in SpawnPoints.");
-			errorCount++;
-		}
-		if (SpawnPoints.LowerRightSpawnpoint == null)
-		{
-			GD.PrintErr("LowerRightSpawnpoint is not assigned in SpawnPoints.");
-			errorCount++;
-		}
-		if (SpawnPoints.LowerLeftSpawnpoint == null)
-		{
-			GD.PrintErr("LowerLeftSpawnpoint is not assigned in SpawnPoints.");
-			errorCount++;
-		}
-		if (GuidingPoints.CenterLeftGuidingPoint == null)
-		{
-			GD.PrintErr("CenterLeftGuidingPoint is not assigned in GuidingPoints.");
-			errorCount++;
-		}
-		if (GuidingPoints.CenterRightGuidingPoint == null)
-		{
-			GD.PrintErr("CenterRightGuidingPoint is not assigned in GuidingPoints.");
-			errorCount++;
-		}
-		if (GuidingPoints.CenterLeftExitPoint == null)
-		{
-			GD.PrintErr("CenterLeftExitPoint is not assigned in GuidingPoints.");
-			errorCount++;
-		}
-		if (GuidingPoints.CenterRightExitPoint == null)
-		{
-			GD.PrintErr("CenterRightExitPoint is not assigned in GuidingPoints.");
-			errorCount++;
-		}
-		GD.Print($"WaveDirector initialization test completed with {errorCount} errors.");
-	}	
-	public override void _Ready()
-	{
-		InitalizationTest();
-		
-		foreach(var data in RegisteredEnemyData)
-		{
-			if (data == null || string.IsNullOrEmpty(data.EnemyId) || data.EnemyScene == null)
-			{
-				GD.PrintErr("Wave director: skipping an EnemyData entry due to missing id or scene");
-				continue;
-			}
-			_enemyScenes[data.EnemyId] = data.EnemyScene;
-		}
-	}
+        if (FlightPaths == null) { GD.PrintErr("FlightPaths is not assigned in WaveDirector."); errorCount++; }
+        if (SpawnPoints == null) { GD.PrintErr("SpawnPoints is not assigned in WaveDirector."); errorCount++; }
+        if (GuidingPoints == null) { GD.PrintErr("GuidingPoints is not assigned in WaveDirector."); errorCount++; }
 
-	private PackedScene ResolveScene(string enemyId)
-	{
-		if (_enemyScenes.TryGetValue(enemyId, out PackedScene scene))
+        if (FlightPaths != null)
         {
-            return scene;
+            if (FlightPaths.UpperRightPath == null) { GD.PrintErr("UpperRightPath is not assigned in FlightPaths."); errorCount++; }
+            if (FlightPaths.UpperLeftPath == null) { GD.PrintErr("UpperLeftPath is not assigned in FlightPaths."); errorCount++; }
+            if (FlightPaths.LowerRightPath == null) { GD.PrintErr("LowerRightPath is not assigned in FlightPaths."); errorCount++; }
+            if (FlightPaths.LowerLeftPath == null) { GD.PrintErr("LowerLeftPath is not assigned in FlightPaths."); errorCount++; }
         }
-        GD.PrintErr($"WaveDirector: no EnemyData registered for id '{enemyId}'.");
-        return null;
-	}
 
-	public void SpawnPathWave(PathWaveData pathWaveData)
-	{
-		if (pathWaveData == null)
-		{
-			GD.PrintErr("WaveDirector: PathWaveData is null.");
-			return;
-		}
-
-		Node2D pathNode = ResolveNode(pathWaveData.PathNode);
-		if (pathNode is not Path2D path2D)
-		{
-			GD.PrintErr($"WaveDirector: Could not resolve Path2D at '{pathWaveData.PathNode}'.");
-			return;
-		}
-
-		SpawnPopcornPath(
-			pathWaveData.EnemyId, 
-			path2D, 
-			pathWaveData.Count, 
-			pathWaveData.Delay
-		);
-	}
-
-	// Spawn popcorn enemies that follow a path
-	private void SpawnPopcornPath(string enemyId, Path2D path, int count, float delay)
-	{
-		PackedScene packedScene = ResolveScene(enemyId);
-
-		if (packedScene == null || path == null || path.Curve == null || path.Curve.GetBakedPoints().Length == 0)
-		{
-			GD.PrintErr("WaveDirector: Cannot spawn path popcorn due to missing scene or invalid Path2D.");
-			return;
-		}
-
-		for (int i = 0; i < count; i++)
-		{
-			float myDelay = delay * i;
-			Vector2 startPosition = path.ToGlobal(path.Curve.GetPointPosition(0));
-
-			if (myDelay <= 0f)
-			{
-				SpawnPopcornInternal(packedScene, startPosition, path);
-			}
-			else
-			{
-				GetTree().CreateTimer(myDelay).Timeout += () => 
-					SpawnPopcornInternal(packedScene, startPosition, path);
-			}
-		}
-	}
-
-	private void AddChildToContainer(BaseCharacter character)
-	{
-		if (CharactersContainer != null)
-		{
-			CharactersContainer.AddChild(character);
-		}
-		else
-		{
-			AddChild(character);
-		}
-	}
-
-	// Spawn popcorn enemies that dives at guiding/exit points instead of following a fixed path
-	public void SpawnPopcornSeek(string enemyId, Node2D spawn, Vector2 offset, Stack<Node2D> pointsStack, int playerIndex = -1)
-	{
-		PackedScene scene = ResolveScene(enemyId);
-
-		if (scene.Instantiate() is not PopcornEnemy popcorn)
-		{
-			GD.PrintErr("WaveDirector: EnemyData scene root is not a PopcornEnemy.");
-			return;
-		}
-
-		AddChildToContainer(popcorn);
-		popcorn.GlobalPosition = spawn.GlobalPosition + offset;
-		popcorn.SetupSeek(pointsStack);
-	}
-
-	private Stack<Node2D> CreateNodeStack(List<Node2D> nodesInOrder)
-	{
-		Stack<Node2D> stack = new Stack<Node2D>();
-        for (int i = nodesInOrder.Count - 1; i >= 0; i--)
+        if (SpawnPoints != null)
         {
-            if (GodotObject.IsInstanceValid(nodesInOrder[i]))
+            if (SpawnPoints.UpperRightSpawnpoint == null) { GD.PrintErr("UpperRightSpawnpoint is not assigned in SpawnPoints."); errorCount++; }
+            if (SpawnPoints.UpperLeftSpawnpoint == null) { GD.PrintErr("UpperLeftSpawnpoint is not assigned in SpawnPoints."); errorCount++; }
+            if (SpawnPoints.LowerRightSpawnpoint == null) { GD.PrintErr("LowerRightSpawnpoint is not assigned in SpawnPoints."); errorCount++; }
+            if (SpawnPoints.LowerLeftSpawnpoint == null) { GD.PrintErr("LowerLeftSpawnpoint is not assigned in SpawnPoints."); errorCount++; }
+        }
+
+        if (GuidingPoints != null)
+        {
+            if (GuidingPoints.CenterLeftGuidingPoint == null) { GD.PrintErr("CenterLeftGuidingPoint is not assigned in GuidingPoints."); errorCount++; }
+            if (GuidingPoints.CenterRightGuidingPoint == null) { GD.PrintErr("CenterRightGuidingPoint is not assigned in GuidingPoints."); errorCount++; }
+            if (GuidingPoints.CenterLeftExitPoint == null) { GD.PrintErr("CenterLeftExitPoint is not assigned in GuidingPoints."); errorCount++; }
+            if (GuidingPoints.CenterRightExitPoint == null) { GD.PrintErr("CenterRightExitPoint is not assigned in GuidingPoints."); errorCount++; }
+        }
+
+        if (EnemyPool.Instance == null)
+        {
+            GD.PrintErr("EnemyPool instance not found in scene.");
+            errorCount++;
+        }
+
+        GD.Print($"WaveDirector initialization test completed with {errorCount} errors.");
+    }
+
+    private Node ResolveContainer()
+	{
+		Node container = CharactersContainer;
+		if (container == null)
+		{
+			container = this;
+		}
+		return container;
+	}
+
+
+    public void SpawnPathWave(PathWaveData pathWaveData)
+    {
+        if (pathWaveData == null)
+        {
+            GD.PrintErr("WaveDirector: PathWaveData is null.");
+            return;
+        }
+
+        if (ResolveNode(pathWaveData.PathNode) is not Path2D path2D)
+        {
+            GD.PrintErr($"WaveDirector: Could not resolve Path2D at '{pathWaveData.PathNode}'.");
+            return;
+        }
+
+        SpawnPopcornPath(
+            pathWaveData.EnemyId, 
+            path2D, 
+            pathWaveData.Count, 
+            pathWaveData.Delay
+        );
+    }
+
+    private void SpawnPopcornPath(string enemyId, Path2D path, int count, float delay)
+    {
+        if (path == null || path.Curve == null || path.Curve.GetBakedPoints().Length == 0)
+        {
+            GD.PrintErr("WaveDirector: Cannot spawn path popcorn due to invalid Path2D.");
+            return;
+        }
+
+        for (int i = 0; i < count; i++)
+        {
+            float myDelay = delay * i;
+            Vector2 startPosition = path.ToGlobal(path.Curve.GetPointPosition(0));
+
+            if (myDelay <= 0f)
             {
-                stack.Push(nodesInOrder[i]);
+                SpawnPopcornInternal(enemyId, startPosition, path);
+            }
+            else
+            {
+                GetTree().CreateTimer(myDelay).Timeout += () => 
+                    SpawnPopcornInternal(enemyId, startPosition, path);
             }
         }
-        return stack;
-	}
+    }
 
-	private Node2D ResolveNode(NodePath path)
-	{
-		Node currentScene = GetTree().CurrentScene;
+    public void SpawnPopcornSeek(string enemyId, Node2D spawn, Vector2 offset, Stack<Node2D> pointsStack, int playerIndex = -1)
+    {
+        if (spawn == null) return;
 
-		Node2D currentLevel = null;
+        PopcornEnemy popcorn = EnemyPool.Instance?.Spawn<PopcornEnemy>(enemyId, ResolveContainer(), spawn.GlobalPosition + offset);
+        popcorn?.SetupSeek(pointsStack);
+    }
 
-		if (currentScene is MainGame mainGame)
-		{
-			currentLevel = mainGame.GetCurrentLevel();
-		}
-		else
-		{
-			GD.PrintErr("ERROR: DO NOT ASSIGN ANYTHING ELSE EXCEPT MAIN GAME AS CURRENT SCENE!");
-		}
+    public void SpawnSeekers(WaveData waveData)
+    {
+        if (waveData == null)
+        {
+            GD.PrintErr("WaveDirector: WaveData is null.");
+            return;
+        }
 
-		if (currentLevel == null)
-		{
-			GD.PrintErr("Cannot resolve node of path: ", path);
-			return null;
-		}
+        Node2D spawnPoint = ResolveNode(waveData.spawnPoint);
+        Node2D exitPoint = ResolveNode(waveData.exitPoint);
 
-		Node2D newNode = currentLevel.GetNode<Node2D>(path);
+        if (spawnPoint == null || exitPoint == null)
+        {
+            GD.PrintErr($"WaveDirector: Could not resolve Spawn or Exit point for wave '{waveData.ResourcePath}'.");
+            return;
+        }
 
-		return newNode;
-	}
+        var guidingPoints = new List<Node2D>();
+        if (waveData.guidingPoints != null)
+        {
+            foreach (NodePath path in waveData.guidingPoints)
+            {
+                Node2D pointNode = ResolveNode(path);
+                if (pointNode != null)
+                {
+                    guidingPoints.Add(pointNode);
+                }
+            }
+        }
 
-	public void SpawnSeekers(WaveData waveData)
-	{
-		if (waveData == null)
-		{
-			GD.PrintErr("WaveDirector: WaveData is null.");
-			return;
-		}
+        SpawnSeekersGroup(waveData.enemyId, spawnPoint, guidingPoints, exitPoint, waveData.formationShape, waveData.count, waveData.spacing, waveData.staggerDelay);
+    }
 
-		Node2D spawnPoint = ResolveNode(waveData.spawnPoint);
-		Node2D exitPoint = ResolveNode(waveData.exitPoint);
-
-		if (spawnPoint == null || exitPoint == null)
-		{
-			GD.PrintErr($"WaveDirector: Could not resolve Spawn or Exit point for wave '{waveData.ResourcePath}'.");
-			return;
-		}
-		var guidingPoints = new Godot.Collections.Array<Node2D>();
-		if (waveData.guidingPoints != null)
-		{
-			foreach (NodePath path in waveData.guidingPoints)
-			{
-				Node2D pointNode = ResolveNode(path);
-				if (pointNode != null)
-				{
-					guidingPoints.Add(pointNode);
-				}
-			}
-		}
-		SpawnSeekersGroup(waveData.enemyId, spawnPoint, guidingPoints, exitPoint, waveData.formationShape, waveData.count, waveData.spacing, waveData.staggerDelay);
-	}
-
-	// Spawn popcorn enemies in a group that utilized seek movement system
-	private void SpawnSeekersGroup(string enemyId, Node2D spawnPoint, Godot.Collections.Array<Node2D> guidingPoints, Node2D exitPoint, FormationShape shape, int count, float spacing = 8f, float staggerDelay = 0.25f)
-	{
-		PackedScene scene = ResolveScene(enemyId);
-        if (scene == null || count <= 0) return;
+    private void SpawnSeekersGroup(string enemyId, Node2D spawnPoint, List<Node2D> guidingPoints, Node2D exitPoint, FormationShape shape, int count, float spacing = 8f, float staggerDelay = 0.25f)
+    {
+        if (count <= 0) return;
 
         List<Node2D> rawNodes = new List<Node2D>();
         
-        for (int i = 0; i < guidingPoints.Count; i++)
+        foreach (var point in guidingPoints)
         {
-            if (GodotObject.IsInstanceValid(guidingPoints[i]))
-            {
-                rawNodes.Add(guidingPoints[i]);
-            }
+            if (GodotObject.IsInstanceValid(point)) rawNodes.Add(point);
         }
 
         if (GodotObject.IsInstanceValid(exitPoint))
@@ -305,7 +181,7 @@ public partial class WaveDirector : Node
             rawNodes.Add(exitPoint);
         }
 
-		Vector2[] offsets = GenerateFormationOffsets(shape, count, spacing);
+        Vector2[] offsets = GenerateFormationOffsets(shape, count, spacing);
 
         for (int i = 0; i < count; i++)
         {
@@ -326,191 +202,209 @@ public partial class WaveDirector : Node
                 };
             }
         }
-	}
+    }
 
-	private void SpawnPopcornInternal(PackedScene scene, Vector2 spawnGlobalPosition, Path2D path = null)
-	{
-		if (scene.Instantiate() is not PopcornEnemy popcorn)
-		{
-			GD.PrintErr("WaveDirector: EnemyData scene root is not a PopcornEnemy.");
-			return;
-		}
+    public void SpawnRigidFormationWave(RigidFormationWaveData formationData)
+    {
+        if (formationData == null)
+        {
+            GD.PrintErr("WaveDirector: RigidFormationData is null.");
+            return;
+        }
 
-		AddChildToContainer(popcorn);
-		popcorn.GlobalPosition = spawnGlobalPosition;
-		if (path != null)
-		{
-			popcorn.SetupPath(path);
-		}
-	}
+        SpawnRigidFormationOnPath(
+            formationData.EnemyId,
+            formationData.PathNode,
+            formationData.Shape,
+            formationData.Count,
+            formationData.Spacing,
+            formationData.PathSpeed,
+            formationData.DirectionFactor
+        );
+    }
 
-	public void SpawnRigidFormationWave(RigidFormationWaveData formationData)
-	{
-		if (formationData == null)
-		{
-			GD.PrintErr("WaveDirector: RigidFormationData is null.");
-			return;
-		}
+    private void SpawnRigidFormationOnPath(string enemyId, NodePath pathNode, FormationShape shape, int count, float spacing = 16f, float pathSpeed = 150f, int directionFactor = -1)
+    {
+        Node2D pathTarget = ResolveNode(pathNode);
 
-		SpawnRigidFormationOnPath(
-			formationData.EnemyId,
-			formationData.PathNode,
-			formationData.Shape,
-			formationData.Count,
-			formationData.Spacing,
-			formationData.PathSpeed,
-			formationData.DirectionFactor
-		);
-	}
+        if (pathTarget is not Path2D path2D || path2D.Curve == null || path2D.Curve.GetBakedPoints().Length == 0)
+        {
+            GD.PrintErr("WaveDirector: Cannot spawn rigid formation due to invalid Path2D.");
+            return;
+        }
 
-	// Spawns enemies attached to a rigid formation moving along a live Path2D.
-	// Every member is locked to the SAME path progress and speed via PathLockedMovementComponent,
-	// each holding its own formation offset, so the group travels and turns together as a single
-	// rigid shape. Each member still keeps its own PathPercentShootAttack, so they independently
-	// fire at the player (via their ShootTriggerPercents) while marching in formation.
-	private void SpawnRigidFormationOnPath(string enemyId, NodePath pathNode, FormationShape shape, int count, float spacing = 16f, float pathSpeed = 150f, int directionFactor = -1)
-	{
-		PackedScene packedScene = ResolveScene(enemyId);
-		Node2D pathTarget = ResolveNode(pathNode);
- 
-		if (packedScene == null || pathTarget is not Path2D path2D || path2D.Curve == null || path2D.Curve.GetBakedPoints().Length == 0)
-		{
-			GD.PrintErr("WaveDirector: Cannot spawn rigid formation due to missing scene or invalid Path2D.");
-			return;
-		}
- 
-		Vector2[] offsets = GenerateFormationOffsets(shape, count, spacing, directionFactor);
- 
-		// No stagger delay: the formation must all start moving in the same frame, otherwise
-		// members would sit at different points along the path and the shape would fall apart.
-		for (int i = 0; i < count; i++)
-		{
-			SpawnRigidFormationMember(packedScene, path2D, offsets[i], pathSpeed);
-		}
-	}
- 
-	private void SpawnRigidFormationMember(PackedScene scene, Path2D path, Vector2 formationOffset, float pathSpeed)
-	{
-		if (scene.Instantiate() is not PopcornEnemy popcorn)
-		{
-			GD.PrintErr("WaveDirector: EnemyData scene root is not a PopcornEnemy.");
-			return;
-		}
- 
-		AddChildToContainer(popcorn);
-		popcorn.SetupPath(path, formationOffset, pathSpeed);
-	}
+        Vector2[] offsets = GenerateFormationOffsets(shape, count, spacing, directionFactor);
 
-	private Vector2[] GenerateFormationOffsets(FormationShape shape, int count, float spacing, int directionFactor = -1)
-	{
-		Vector2[] offsets = new Vector2[count];
-		if (count <= 0) return offsets;
+        for (int i = 0; i < count; i++)
+        {
+            SpawnRigidFormationMember(enemyId, path2D, offsets[i], pathSpeed);
+        }
+    }
 
-		switch (shape)
-		{
-			case FormationShape.VWedge:
-				offsets[0] = Vector2.Zero;
+    private void SpawnRigidFormationMember(string enemyId, Path2D path, Vector2 formationOffset, float pathSpeed)
+    {
+        PopcornEnemy popcorn = EnemyPool.Instance?.Spawn<PopcornEnemy>(enemyId, ResolveContainer(), path.GlobalPosition);
+        popcorn?.SetupPath(path, formationOffset, pathSpeed);
+    }
 
-				for (int i = 1; i < count; i++)
-				{
-					int rank = (i + 1) / 2;           // Step distance behind apex
-					int side = (i % 2 == 1) ? -1 : 1; // Lateral spreading (-Y / +Y)
+    public void SpawnDiveAndFleeWave(DiveWaveData diveWaveData)
+    {
+        if (diveWaveData == null)
+        {
+            GD.PrintErr("WaveDirector: DiveWaveData is null.");
+            return;
+        }
 
-					// -X ALWAYS trails behind the apex along the curve's direction of travel.
-					float xOffset = -rank * spacing; 
-					// Apply directionFactor to Y if you need to mirror left/right wings.
-					float yOffset = side * rank * spacing * directionFactor; 
+        Node2D spawnPoint = ResolveNode(diveWaveData.SpawnPoint);
+        Node2D entryPoint = ResolveNode(diveWaveData.EntryPoint);
+        Node2D exitPoint = ResolveNode(diveWaveData.ExitPoint);
 
-					offsets[i] = new Vector2(xOffset, yOffset);
-				}
-				break;
+		Vector2[] offset = GenerateFormationOffsets(diveWaveData.Shape, diveWaveData.Count, diveWaveData.Spacing);
 
-			case FormationShape.Line: // Horizontal wing line perpendicular to flight direction
-				for (int i = 0; i < count; i++)
-				{
-					// Center the line across Y axis
-					float yOffset = (i - (count - 1) / 2.0f) * spacing;
-					offsets[i] = new Vector2(0f, yOffset);
-				}
-				break;
+        if (spawnPoint == null || entryPoint == null || exitPoint == null)
+        {
+            GD.PrintErr($"WaveDirector: Could not resolve Spawn/Entry/Exit point for dive wave '{diveWaveData.ResourcePath}'.");
+            return;
+        }
 
-			case FormationShape.Column: // Single file trail behind leader
-				for (int i = 0; i < count; i++)
-				{
-					offsets[i] = new Vector2(-i * spacing, 0f);
-				}
-				break;
+        for (int i = 0; i < diveWaveData.Count; i++)
+        {
+			int index = i;
+            float delay = diveWaveData.StaggerDelay * i;
 
-			case FormationShape.Grid:
-				int cols = Mathf.CeilToInt(Mathf.Sqrt(count));
-				for (int i = 0; i < count; i++)
-				{
-					int row = i / cols; // Depth (-X)
-					int col = i % cols; // Lateral (-Y to +Y)
+            if (delay <= 0f)
+            {
+                SpawnDiveEnemy(diveWaveData.EnemyId, spawnPoint, entryPoint, exitPoint, offset[index]);
+            }
+            else
+            {
+                GetTree().CreateTimer(delay).Timeout += () =>
+                    SpawnDiveEnemy(diveWaveData.EnemyId, spawnPoint, entryPoint, exitPoint, offset[index]);
+            }
+        }
+    }
 
-					float xOffset = -row * spacing;
-					float yOffset = (col - (cols - 1) / 2.0f) * spacing;
+    private void SpawnDiveEnemy(string enemyId, Node2D spawnPoint, Node2D entryPoint, Node2D exitPoint, Vector2 offset)
+    {
+        DiveEnemy diver = EnemyPool.Instance?.Spawn<DiveEnemy>(enemyId, ResolveContainer(), spawnPoint.GlobalPosition + offset);
 
-					offsets[i] = new Vector2(xOffset, yOffset);
-				}
-				break;
+        diver?.SetupDiveAndFlee(entryPoint, exitPoint, offset);
+    }
 
-			case FormationShape.Circle:
-				if (count == 1)
-				{
-					offsets[0] = Vector2.Zero;
-					break;
-				}
+    private void SpawnPopcornInternal(string enemyId, Vector2 spawnGlobalPosition, Path2D path = null)
+    {
+        PopcornEnemy popcorn = EnemyPool.Instance?.Spawn<PopcornEnemy>(enemyId, ResolveContainer(), spawnGlobalPosition);
+        if (popcorn == null) return;
 
-				// Calculate radius dynamically to fit spacing
-				float radius = (spacing * count) / (2f * Mathf.Pi);
-				float angleStep = Mathf.Tau / count;
+        if (path != null)
+        {
+            popcorn.SetupPath(path);
+        }
+    }
 
-				for (int i = 0; i < count; i++)
-				{
-					float angle = i * angleStep;
-					// Cos -> X (front/back), Sin -> Y (left/right)
-					offsets[i] = new Vector2(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius);
-				}
-				break;
-			case FormationShape.Arc:
-				if (count == 1)
-					{
-						offsets[0] = Vector2.Zero;
-						break;
-					}
+    private Stack<Node2D> CreateNodeStack(List<Node2D> nodesInOrder)
+    {
+        Stack<Node2D> stack = new Stack<Node2D>();
+        for (int i = nodesInOrder.Count - 1; i >= 0; i--)
+        {
+            if (GodotObject.IsInstanceValid(nodesInOrder[i]))
+            {
+                stack.Push(nodesInOrder[i]);
+            }
+        }
+        return stack;
+    }
 
-					float arcAngleSpan = Mathf.DegToRad(120f); 
-					float angleStepArc = arcAngleSpan / (count - 1);
-					float startAngle = -arcAngleSpan / 2f; 
-					float arcRadius = (spacing * (count - 1)) / arcAngleSpan;
+    private Node2D ResolveNode(NodePath path)
+    {
+        if (path == null) return null;
 
-					for (int i = 0; i < count; i++)
-					{
-						float currentAngle = startAngle + (i * angleStepArc);
-						
-						// (Mathf.Cos - 1f) is negative, ensuring wingmen bow backwards along -X.
-						float xOffset = (Mathf.Cos(currentAngle) - 1f) * arcRadius; 
-						float yOffset = Mathf.Sin(currentAngle) * arcRadius * directionFactor;
+        Node currentScene = GetTree().CurrentScene;
+        if (currentScene is MainGame mainGame)
+        {
+            Node2D currentLevel = mainGame.GetCurrentLevel();
+            return currentLevel?.GetNodeOrNull<Node2D>(path);
+        }
 
-						offsets[i] = new Vector2(xOffset, yOffset);
-					}
-					break;
+        GD.PrintErr("ERROR: CurrentScene is not MainGame.");
+        return null;
+    }
 
-						default:
-							// Fallback stack on top of origin
-							for (int i = 0; i < count; i++)
-							{
-								offsets[i] = Vector2.Zero;
-							}
-							break;
-					}
+    private Vector2[] GenerateFormationOffsets(FormationShape shape, int count, float spacing, int directionFactor = -1)
+    {
+        Vector2[] offsets = new Vector2[count];
+        if (count <= 0) return offsets;
 
-		return offsets;
-	}
+        switch (shape)
+        {
+            case FormationShape.VWedge:
+                offsets[0] = Vector2.Zero;
+                for (int i = 1; i < count; i++)
+                {
+                    int rank = (i + 1) / 2;
+                    int side = (i % 2 == 1) ? -1 : 1;
+                    offsets[i] = new Vector2(-rank * spacing, side * rank * spacing * directionFactor);
+                }
+                break;
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
-	{
-	}
+            case FormationShape.Line:
+                for (int i = 0; i < count; i++)
+                {
+                    float yOffset = (i - (count - 1) / 2.0f) * spacing;
+                    offsets[i] = new Vector2(0f, yOffset);
+                }
+                break;
+
+            case FormationShape.Column:
+                for (int i = 0; i < count; i++)
+                {
+                    offsets[i] = new Vector2(-i * spacing, 0f);
+                }
+                break;
+
+            case FormationShape.Grid:
+                int cols = Mathf.CeilToInt(Mathf.Sqrt(count));
+                for (int i = 0; i < count; i++)
+                {
+                    int row = i / cols;
+                    int col = i % cols;
+                    offsets[i] = new Vector2(-row * spacing, (col - (cols - 1) / 2.0f) * spacing);
+                }
+                break;
+
+            case FormationShape.Circle:
+                if (count == 1) { offsets[0] = Vector2.Zero; break; }
+                float radius = (spacing * count) / (2f * Mathf.Pi);
+                float angleStep = Mathf.Tau / count;
+                for (int i = 0; i < count; i++)
+                {
+                    float angle = i * angleStep;
+                    offsets[i] = new Vector2(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius);
+                }
+                break;
+
+            case FormationShape.Arc:
+                if (count == 1) { offsets[0] = Vector2.Zero; break; }
+                float arcAngleSpan = Mathf.DegToRad(120f);
+                float angleStepArc = arcAngleSpan / (count - 1);
+                float startAngle = -arcAngleSpan / 2f;
+                float arcRadius = (spacing * (count - 1)) / arcAngleSpan;
+
+                for (int i = 0; i < count; i++)
+                {
+                    float currentAngle = startAngle + (i * angleStepArc);
+                    offsets[i] = new Vector2(
+                        (Mathf.Cos(currentAngle) - 1f) * arcRadius,
+                        Mathf.Sin(currentAngle) * arcRadius * directionFactor
+                    );
+                }
+                break;
+
+            default:
+                for (int i = 0; i < count; i++) offsets[i] = Vector2.Zero;
+                break;
+        }
+
+        return offsets;
+    }
 }

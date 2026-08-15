@@ -24,21 +24,28 @@ public partial class BaseEnemy : BaseCharacter
 	// If they go offscreen again, they will be culled and removed from the scene.
 	[ExportGroup("Combat")]
 	[Export] public HitboxComponent Hitbox { get; set; }
+	[Export] public HurtboxComponent Hurtbox { get; set; }
 	[Export] public EnemyBulletEmitter LeftBarrel { get; set; }
 	[Export] public EnemyBulletEmitter RightBarrel { get; set; }
 	[Export] public Godot.Collections.Array<AttackController> AttackControllers { get; set; }
 	[ExportGroup("Movement")]
 	[Export] public Godot.Collections.Array<MovementComponent> RegisteredMovementComponents { get; set; }
-	[Export] public NavigationAgent2D NavigationAgent2D { get; set; }
 	public EnemyState CurrentState { get; protected set; } = EnemyState.Spawning;
 	public bool SuppressAutoMovementCompletion { get; set; } = false;
 	public bool IsActivated => _isActivated;
+
+	// Set by EnemyPool when this instance is dispensed. Identifies which pool
+	// stack to return this enemy to instead of freeing it outright.
+	public string PoolId { get; set; }
 
 	protected bool facingRight = true;
 
 	public override void _Ready()
 	{
 		base._Ready();
+		Hurtbox ??= GetNodeOrNull<HurtboxComponent>("HurtboxComponent");
+		Hitbox ??= GetNodeOrNull<HitboxComponent>("HitboxComponent");
+		VisibilityNotifier ??= GetNodeOrNull<VisibleOnScreenNotifier2D>("VisibleOnScreenNotifier2D");
 		if (Hitbox != null)
 		{
 			Hitbox.SetTeam(Team.Enemy);
@@ -47,6 +54,11 @@ public partial class BaseEnemy : BaseCharacter
 		else
 		{
 			GD.PrintErr("HitboxComponent is not assigned for enemy: ", Name);
+		}
+
+		if (Hurtbox == null)
+		{
+			GD.PrintErr("Error: Please assign HurtboxComponent!");
 		}
 
 		if (HealthComponent != null)
@@ -82,7 +94,94 @@ public partial class BaseEnemy : BaseCharacter
 			{
 				return;
 			}
-			QueueFree(); // TODO: Replace with object pooling.
+			Despawn(); // TODO: Replace with object pooling.
+		}
+	}
+
+	// Returns this enemy to the EnemyPool it was dispensed from, or frees it if it
+	// wasn't spawned through a pool (e.g. an enemy placed directly in a level).
+	protected void Despawn()
+	{
+		if (!string.IsNullOrEmpty(PoolId) && EnemyPool.Instance != null)
+		{
+			EnemyPool.Instance.Return(this);
+		}
+		else
+		{
+			QueueFree();
+		}
+	}
+
+	// Called by EnemyPool right after this instance is dispensed (freshly built or
+	// reused) and re-parented/repositioned. Brings every component back to a clean,
+	// alive state. Override OnSpawnedFromPool, not this, to add subclass-specific setup.
+	public void ActivateFromPool()
+	{
+		CurrentState = EnemyState.Spawning;
+		_isActivated = false;
+		facingRight = true;
+		SuppressAutoMovementCompletion = false;
+ 
+		Visible = true;
+		SetProcess(true);
+		SetPhysicsProcess(true);
+		Velocity = Vector2.Zero;
+ 
+		HealthComponent?.ResetHealth();
+		Hurtbox?.Activate();
+		Hitbox?.SetTeam(Team.Enemy); // re-enables monitoring/collision
+ 
+		if (RegisteredMovementComponents != null)
+		{
+			foreach (MovementComponent movementComponent in RegisteredMovementComponents)
+			{
+				movementComponent?.StopAndReset();
+			}
+		}
+ 
+		if (AttackControllers != null)
+		{
+			foreach (AttackController attackController in AttackControllers)
+			{
+				attackController?.ResetAttack();
+			}
+		}
+ 
+		OnSpawnedFromPool();
+	}
+ 
+	// Override to set an enemy's starting EnemyState/movement once it's dispensed
+	// from the pool (e.g. PopcornEnemy sets itself to Entering).
+	protected virtual void OnSpawnedFromPool() { }
+ 
+	// Called by EnemyPool right before parking this instance back in its stack.
+	public void ReturnToPool()
+	{
+		CurrentState = EnemyState.Dying;
+		_isActivated = false;
+ 
+		Visible = false;
+		SetProcess(false);
+		SetPhysicsProcess(false);
+		Velocity = Vector2.Zero;
+ 
+		Hitbox?.Deactivate();
+		Hurtbox?.Deactivate();
+ 
+		if (RegisteredMovementComponents != null)
+		{
+			foreach (MovementComponent movementComponent in RegisteredMovementComponents)
+			{
+				movementComponent?.StopAndReset();
+			}
+		}
+ 
+		if (AttackControllers != null)
+		{
+			foreach (AttackController attackController in AttackControllers)
+			{
+				attackController?.ResetAttack();
+			}
 		}
 	}
 
@@ -97,11 +196,6 @@ public partial class BaseEnemy : BaseCharacter
 				HealthComponent.TakeDamage(GlobalConstants.BaseDamage); // Assuming 1 damage for now, can be adjusted later.
 			}
 		}
-	}
-
-	protected virtual void Shoot()
-	{
-		
 	}
 
 	protected bool IsFacingRight()

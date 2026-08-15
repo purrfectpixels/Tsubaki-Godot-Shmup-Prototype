@@ -60,6 +60,15 @@ public partial class HealthComponent : Node
 		EmitSignal(SignalName.Died);
 	}
 
+	// Called when this owner is pulled fresh from the EnemyPool so it doesn't
+	// come back to life still dead or mid hit-grace from its previous activation.
+	public void ResetHealth()
+	{
+		IsDead = false;
+		Health = MaxHealth;
+		_hitGraceTimer = 0f;
+	}
+
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _PhysicsProcess(double delta)
 	{

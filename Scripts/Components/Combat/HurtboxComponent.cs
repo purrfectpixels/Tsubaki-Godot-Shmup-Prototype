@@ -58,7 +58,7 @@ public partial class HurtboxComponent : Area2D
         }
     }
 
-    private void Deactivate()
+    public void Deactivate()
     {
         SetDeferred(Area2D.PropertyName.Monitoring, false);
     	SetDeferred(Area2D.PropertyName.Monitorable, false);

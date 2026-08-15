@@ -21,4 +21,6 @@ public abstract partial class MovementComponent : Node
     }
 
 	public abstract void Move(double delta);
+
+    public virtual void StopAndReset() { }
 }
