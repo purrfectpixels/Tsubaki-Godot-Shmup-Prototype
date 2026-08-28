@@ -193,7 +193,7 @@ public partial class BaseEnemy : BaseCharacter
 		{
 			if (!HealthComponent.IsImmune())
 			{
-				HealthComponent.TakeDamage(GlobalConstants.BaseDamage); // Assuming 1 damage for now, can be adjusted later.
+				HealthComponent.TakeDamage(GlobalConstants.BaseBulletDamage); // Assuming 1 damage for now, can be adjusted later.
 			}
 		}
 	}

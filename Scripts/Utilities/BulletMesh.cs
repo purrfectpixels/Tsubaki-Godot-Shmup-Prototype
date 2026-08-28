@@ -139,7 +139,7 @@ public partial class BulletMesh : MultiMeshInstance2D
 		// Hurt the player and trigger cooldown
 		GD.Print($"Bullet {bulletIndex} hit the player!");
 		if (!_player.IsCurrentlyImmune())
-			_player.TakeDamage(GlobalConstants.BaseDamage);
+			_player.TakeDamage(GlobalConstants.BaseBulletDamage);
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.

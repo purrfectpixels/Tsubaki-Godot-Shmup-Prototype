@@ -9,6 +9,12 @@ public partial class PlayerMovementComponent : MovementComponent
 	protected PlayerCharacter PlayerCharacter { get; private set; }
 	[ExportGroup("Movement data")]
 	[Export] public float FocusSpeed { get => _focusSpeed; set => _focusSpeed = value; }
+	[ExportGroup("Touch Smoothing")]
+    // Higher values = tighter, more responsive tracking.
+    // Lower values = smoother, but can add noticeable lag.
+    // 35f to 50f is the sweet spot for shmups.
+    [Export] public float TouchSmoothing { get; set; } = 40f;
+	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
@@ -17,27 +23,31 @@ public partial class PlayerMovementComponent : MovementComponent
 
     public override void Move(double delta)
     {
-        Vector2 velocity = PlayerCharacter.Velocity;
-		Vector2 direction = Input.GetVector("move_left", "move_right", "move_up", "move_down");
-		if (direction != Vector2.Zero)
+        Vector2 targetVelocity = Vector2.Zero;
+		Vector2 direction;
+		float dt = (float)delta;
+		float speed;
+
+		TouchJoystickService touch = TouchJoystickService.Instance;
+		if (touch != null && touch.IsActive)
 		{
-			if(Input.IsActionPressed("focus"))
-			{
-				velocity = direction * _focusSpeed;
-			}
-			else
-			{
-				velocity = direction * BaseSpeed;
-			}
+			Vector2 offset = touch.ConsumeOffset();
+
+			// Raw target velocity calculated from touch drag this frame
+            targetVelocity = dt > 0f ? offset / dt : Vector2.Zero;
+
+            // Frame-rate independent Lerp smoothing to eliminate touch polling jitter
+            PlayerCharacter.Velocity = PlayerCharacter.Velocity.Lerp(targetVelocity, 1f - Mathf.Exp(-TouchSmoothing * dt));
 		}
 		else
 		{
-			velocity = Vector2.Zero;
+			direction = Input.GetVector("move_left", "move_right", "move_up", "move_down");
+			speed = Input.IsActionPressed("focus") ? _focusSpeed : BaseSpeed;
+
+			PlayerCharacter.Velocity = targetVelocity;
 		}
-
-		velocity = ClampVelocityToViewportBounds(velocity, (float)delta);
-
-		PlayerCharacter.Velocity = velocity;
+ 
+		PlayerCharacter.Velocity = ClampVelocityToViewportBounds(PlayerCharacter.Velocity, dt);
 		PlayerCharacter.MoveAndSlide();
     }
 

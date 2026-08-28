@@ -75,7 +75,7 @@ public partial class HurtboxComponent : Area2D
         {
             if (hitbox.Team != Team)
             {
-                float damage = GlobalConstants.BaseDamage;
+                float damage = GlobalConstants.BaseBulletDamage;
                 if (GetParent() is BaseCharacter character)
                 {
                     character.TakeDamage(damage);

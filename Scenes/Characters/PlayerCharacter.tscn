@@ -44,8 +44,7 @@ metadata/_custom_type_script = "uid://qkllb45qs8xt"
 
 [node name="PlayerMovementComponent" type="Node" parent="." unique_id=1045025635]
 script = ExtResource("5_eisek")
-FocusSpeed = 200.0
-BaseSpeed = 500.0
+BaseSpeed = 350.0
 metadata/_custom_type_script = "uid://dlbv01myarg7u"
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1601448535]
